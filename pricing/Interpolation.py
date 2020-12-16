@@ -41,7 +41,5 @@ def test():
     print(interpolation2d.interpolate(1.17, 2.33))
     print(interpolation2d.interpolate([1.17, 2.23], [4.3, 3.3]))
 
-    # 이거 interpolation 2개짜리 엑셀 파일 확인해야함.
-    
 if __name__ == "__main__":
     test()
