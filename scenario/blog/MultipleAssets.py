@@ -1,5 +1,3 @@
-# excel link : https://blog.naver.com/montrix/221361343611
-
 import mxdevtool as mx
 import mxdevtool.xenarix as xen
 import numpy as np
@@ -24,7 +22,6 @@ corrMatrix[0][1] = gbmconst1_gbmconst2_corr
 gbmconst1_vasicek_corr = 0.1
 corrMatrix[2][0] = gbmconst1_vasicek_corr 
 corrMatrix[0][2] = gbmconst1_vasicek_corr
-
 
 # 시간 간격 및 최대 생성 구간 설정
 timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
