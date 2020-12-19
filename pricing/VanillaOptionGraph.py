@@ -48,13 +48,6 @@ def test():
     plt.title(target)
     plt.show()
 
-    #results1_df = pd.DataFrame(results1)
-    #results1_df.to_csv('./excel/pricing/VanillaOptionGraphResults1.csv')
-
-    #results2 = portfolio.calculateMany(['spot','rf'], ['=','='], [spot_grid.tolist(), rf_grid.tolist()], 'npv')
-    #results2_df = pd.DataFrame(results2)
-    #results2_df.to_csv('./excel/pricing/VanillaOptionGraphResults2.csv')
-
 if __name__ == "__main__":
     test()
 
