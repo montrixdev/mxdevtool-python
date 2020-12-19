@@ -133,3 +133,6 @@ dmypy.json
 
 # csv results
 *.csv
+
+# npz results
+*.npz
