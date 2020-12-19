@@ -33,7 +33,9 @@ results = xen.generate(models, None, corrMatrix, timeGrid, rsg, filename, False)
 
 # 결과 로드
 results = xen.ScenarioResults(filename)
-data1 = results.toNumpyArr()
+data = results.toNumpyArr()
+
+print(data)
 
 
 
