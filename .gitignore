@@ -136,3 +136,7 @@ dmypy.json
 
 # npz results
 *.npz
+
+# vscode
+./.vscode
+*.settings.json
