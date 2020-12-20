@@ -1,0 +1,53 @@
+{
+    "name": "test",
+    "scen_list":[
+        {
+            "models":[
+                {
+                    "name":"gbm1",
+                    "type":"gbmcont",
+                    "x0": 100,
+                    "rf":0.02,
+                    "div":0.01,
+                    "vol":0.3
+                },
+                {
+                    "name":"gbm2",
+                    "type":"gbm",
+                    "x0": 100,
+                    "rfCurve":
+                    {
+                        "tenor": ["3m","6m"],
+                        "values": [0.03, 0.04]
+                    },
+                    "divCurve":
+                    {
+                        "tenor": ["3m","6m"],
+                        "values": [0.03, 0.04]
+                    },
+                    "volTs":
+                    {
+                        "type": "curve",
+                        "tenor": ["3m","6m"],
+                        "values": [0.03, 0.04]
+                    }
+                }
+            ],
+            "calcs":[{
+
+            }
+
+            ],
+            "corr":[
+                [1,2],
+                [3,4]
+            ],
+            "timegrid":{
+
+            },
+            "filename": "scen1.npz",
+
+
+        }
+    ]
+}
