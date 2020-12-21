@@ -41,7 +41,7 @@ $ pip install mxdevtool
 If you have following error : 
 
 ```
-ERROR: No matching distribution found for ( numpy, matplotlib, pandas ) (from mxdevtool==0.8.30.1)
+ERROR: No matching distribution found for ( numpy, matplotlib, pandas ) (from mxdevtool==0.8.30.2)
 ```
 You need to install ( numpy, matplotlib, pandas ) first. 
 
