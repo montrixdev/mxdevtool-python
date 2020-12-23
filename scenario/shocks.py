@@ -38,6 +38,4 @@ for data in marketdata:
     scen_list.append(scen)
 
 
-
-
 # 완성되면 이건 여러가지 시나리오등을 한꺼번에 생성함
