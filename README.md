@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit-red.svg)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.30.2-green.svg)
+![image](https://img.shields.io/badge/version-0.8.31.0-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -396,6 +396,7 @@ t_time = 1.32
 multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 
+
 ```
 
 ## Analytic Path and Test Calculation
@@ -479,6 +480,7 @@ source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/mas
   - SobolRandom
 
 - Scenario
+  - Blog
   - Models
 
 <br>
@@ -489,14 +491,19 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.31.0 (2020-12-31)
+- Scenario serialization functions is added
+- Scenario save and load is added using xenarix manager
+
 ## 0.8.30.2 (2020-12-14)
 - Re-designed project is released
-- xenarix is moved to mxdevtool
+- Xenarix is moved to mxdevtool
 
 <br>
 
 # MxDevtool Structure
     ├── mxdevtool.py          <- The main library of this project.
+    ├── config.py             <- a config file of this project.
     ├── utils.py              <- Etc functions( ex - npzee ).
     │
     ├── instruments           <- financial instruments for pricing.
