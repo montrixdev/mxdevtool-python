@@ -52,10 +52,10 @@ def test():
     g2ext = xen.G2Ext('g2ext', fittingCurve=rfCurve, alpha1=0.1, sigma1=0.01, alpha2=0.2, sigma2=0.02, corr=0.5)
 
     # calcs in models
-    hw1f_spot3m = hw1f.spot('hw1f_spot3m', maturity=mx.Period(3, mx.Months), compounding=mx.Compounded)
-    hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startPeriod=mx.Period(6, mx.Months), maturity=mx.Period(3, mx.Months), compounding=mx.Compounded)
+    hw1f_spot3m = hw1f.spot('hw1f_spot3m', maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+    hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
     hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
-    hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Period(3, mx.Months))
+    hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturityTenor=mx.Period(3, mx.Months))
 
     # calcs
     constantValue = xen.ConstantValue('constantValue', 15)
@@ -80,10 +80,10 @@ def test():
     linearOper2 = gbmconst.linearOper('linearOper2', multiple=1.1, spread=10)
 
     shiftRight1 = xen.Shift('shiftRight1', hw1f, shift=5)
-    shiftRight2 = hw1f.shift('shiftRight2', shift=5)
+    shiftRight2 = hw1f.shift('shiftRight2', shift=5, fill_value=0.0)
 
     shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5) 
-    shiftLeft2 = cir1f.shift('shiftLeft1', shift=-5) 
+    shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0) 
 
     returns1 = xen.Returns('returns1', gbm,'return')
     returns2 = gbm.returns('returns2', 'return')
@@ -97,17 +97,13 @@ def test():
     cumlogreturns1 = xen.Returns('cumlogreturns1', gbm,'cumlogreturn')
     cumlogreturns2 = gbm.returns('cumlogreturns2', 'cumlogreturn')
 
-    fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fixedrate=0.0, coupon_tenor=mx.Period(3, mx.Months), maturity_tenor=mx.Period(3, mx.Years), discount=rfCurve)
-
-
+    fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 
     # timegrid
     timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
     timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
     timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='endofmonth')
     timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='custom', frequency_month=8, frequency_day=10)
-
-
 
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
@@ -126,8 +122,18 @@ def test():
 
     # multiple model with calc
     filename3='./multiple_model_with_calc.npz'
-    calcs = [oper1, oper3, linearOper1, shiftLeft2, returns1, fixedRateBond]
+    calcs = [oper1, oper3, linearOper1, linearOper2, shiftLeft2, returns1, fixedRateBond, hw1f_spot3m]
     results3 = xen.generate(models=models, calcs=calcs, corr=corrMatrix, timegrid=timegrid4, rsg=sobol_rsg, filename=filename3, isMomentMatching=False)
+
+    all_models = [ gbmconst, gbm, heston, hw1f, bk1f, cir1f, vasicek1f, g2ext ]
+    all_calcs = [ hw1f_spot3m, hw1f_forward6m3m, hw1f_discountFactor, hw1f_discountBond3m,
+                  constantValue, constantArr, oper1, oper2, oper3, oper4, oper5, oper6, oper7, oper8, oper9, oper10, oper11, oper12,
+                  linearOper1, linearOper2, shiftRight1, shiftRight2, shiftLeft1, shiftLeft2, returns1, returns2, logreturns1, logreturns2,
+                  cumreturns1, cumreturns2, cumlogreturns1, cumlogreturns2, fixedRateBond ]
+    
+    filename4='./multiple_model_with_calc_all.npz'
+    corrMatrix2 = mx.IdentityMatrix(len(all_models))
+    results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename4, isMomentMatching=False)
 
     # results
     results = results3
@@ -173,12 +179,6 @@ def test():
     multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 
     # analyticPath and test calculation
-    all_models = [ gbmconst, gbm, heston, hw1f, bk1f, cir1f, vasicek1f, g2ext ]
-    all_calcs = [ hw1f_spot3m, hw1f_forward6m3m, hw1f_discountFactor, hw1f_discountBond3m,
-                  constantValue, constantArr, oper1, oper2, oper3, oper4, oper5, oper6, oper7, oper8, oper9, oper10, oper11, oper12,
-                  linearOper1, linearOper2, shiftRight1, shiftRight2, shiftLeft1, shiftLeft2, returns1, returns2, logreturns1, logreturns2,
-                  cumreturns1, cumreturns2, cumlogreturns1, cumlogreturns2, fixedRateBond ]
-    
     all_pv_list = []
     all_pv_list.extend(all_models)
     all_pv_list.extend(all_calcs)
@@ -197,3 +197,39 @@ def test():
             calculatePath = pv.calculatePath(input_arr2d, timegrid1)
         else:
             pass
+    
+    # Xenarix Manager
+    xfm_config = { 'location': 'd:/mxdevtool' }
+
+    xm = xen.XenarixFileManager(xfm_config)
+
+    filename5 = 'scen_all.npz'
+    scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
+
+    filename6 = 'scen_multiple.npz'
+    scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename6, isMomentMatching=False)
+
+    scen_all_hashCode = scen_all.hashCode() 
+    scen_all_hashCode2 = scen_all.fromDict(scen_all.toDict()).hashCode()
+
+    if scen_all_hashCode != scen_all_hashCode2:
+        raise Exception('hashcode is not same')
+
+    # save, load, scenario list
+    name1 = 'name1'
+    xm.save(name=name1, scen=scen_all)
+    scen_name1 = xm.load(name=name1)
+
+    scen_name1['scen0'].filename = './reloaded_scenfile.npz'
+    scen_name1['scen0'].generate()
+
+    name2 = 'name2'
+    xm.save(name=name2, scen=[scen_all, scen_multiple])
+    scen_name2 = xm.load(name=name2)
+
+    name3 = 'name3'
+    xm.save(name=name3, scen={'scen_all' : scen_all, 'scen_multiple': scen_multiple})
+    scen_name3 = xm.load(name=name3)
+
+    scenList = xm.scenList() # ['name1', 'name2', 'name3']
+

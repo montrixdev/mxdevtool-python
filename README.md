@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit-red.svg)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.30.2-green.svg)
+![image](https://img.shields.io/badge/version-0.8.31.0-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -238,11 +238,10 @@ hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Perio
 ---
 
 Constant Value and Array :
-```python
 
+```python
 constantValue = xen.ConstantValue('constantValue', 15)
 constantArr = xen.ConstantArray('constantArr', [15,14,13])
-
 ```
 
 Operators :
@@ -282,6 +281,7 @@ shiftLeft2 = cir1f.shift('shiftLeft1', shift=-5)
 ```
 
 Returns :
+
 ```python
 returns1 = xen.Returns('returns1', gbm,'return')
 returns2 = gbm.returns('returns2', 'return')
@@ -299,7 +299,7 @@ cumlogreturns2 = gbm.returns('cumlogreturns2', 'cumlogreturn')
 FixedRateBond :
 
 ```python
-fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fixedrate=0.0, coupon_tenor=mx.Period(3, mx.Months), maturity_tenor=mx.Period(3, mx.Years), discount=rfCurve)
+fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 ```
 
 ## TimeGrid
@@ -336,8 +336,18 @@ results2 = xen.generate(models=models, calcs=None, corr=corrMatrix, timegrid=tim
 
 # multiple model with calc
 filename3='./multiple_model_with_calc.npz'
-calcs = [oper1, oper3, linearOper1, shiftLeft2, returns1, fixedRateBond]
+calcs = [oper1, oper3, linearOper1, linearOper2, shiftLeft2, returns1, fixedRateBond, hw1f_spot3m]
 results3 = xen.generate(models=models, calcs=calcs, corr=corrMatrix, timegrid=timegrid4, rsg=sobol_rsg, filename=filename3, isMomentMatching=False)
+
+all_models = [ gbmconst, gbm, heston, hw1f, bk1f, cir1f, vasicek1f, g2ext ]
+all_calcs = [ hw1f_spot3m, hw1f_forward6m3m, hw1f_discountFactor, hw1f_discountBond3m,
+                constantValue, constantArr, oper1, oper2, oper3, oper4, oper5, oper6, oper7, oper8, oper9, oper10, oper11, oper12,
+                linearOper1, linearOper2, shiftRight1, shiftRight2, shiftLeft1, shiftLeft2, returns1, returns2, logreturns1, logreturns2,
+                cumreturns1, cumreturns2, cumlogreturns1, cumlogreturns2, fixedRateBond ]
+
+filename4='./multiple_model_with_calc_all.npz'
+corrMatrix2 = mx.IdentityMatrix(len(all_models))
+results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename4, isMomentMatching=False)
 ```
 
 ## Results
@@ -386,15 +396,12 @@ t_time = 1.32
 multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 
-```
 
+```
 
 ## Analytic Path and Test Calculation
 
 ```python
-all_models = [ gbmconst, gbm, heston, hw1f, bk1f, cir1f, vasicek1f, g2ext ]
-all_calcs = [ hw1f_spot3m, hw1f_forward6m3m, hw1f_discountFactor, hw1f_discountBond3m, constantValue, constantArr, oper1, oper2, oper3, oper4, oper5, oper6, oper7, oper8, oper9, oper10, oper11, oper12, linearOper1, linearOper2, shiftRight1, shiftRight2, shiftLeft1, shiftLeft2, returns1, returns2, logreturns1, logreturns2, cumreturns1, cumreturns2, cumlogreturns1, cumlogreturns2, fixedRateBond ]
-
 all_pv_list = []
 all_pv_list.extend(all_models)
 all_pv_list.extend(all_calcs)
@@ -412,7 +419,44 @@ for pv in all_calcs:
         calculatePath = pv.calculatePath(input_arr2d, timegrid1)
     else:
         pass
+```
 
+## Xenarix Manager
+
+```python
+xfm_config = { 'location': 'd:/mxdevtool' }
+
+xm = xen.XenarixFileManager(xfm_config)
+
+filename5 = 'scen_all.npz'
+scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
+
+filename6 = 'scen_multiple.npz'
+scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename6, isMomentMatching=False)
+
+scen_all_hashCode = scen_all.hashCode() 
+scen_all_hashCode2 = scen_all.fromDict(scen_all.toDict()).hashCode()
+
+if scen_all_hashCode != scen_all_hashCode2:
+    raise Exception('hashcode is not same')
+
+# save, load, scenario list
+name1 = 'name1'
+xm.save(name=name1, scen=scen_all)
+scen_name1 = xm.load(name=name1)
+
+scen_name1['scen0'].filename = './reloaded_scenfile.npz'
+scen_name1['scen0'].generate()
+
+name2 = 'name2'
+xm.save(name=name2, scen=[scen_all, scen_multiple])
+scen_name2 = xm.load(name=name2)
+
+name3 = 'name3'
+xm.save(name=name3, scen={'scen_all' : scen_all, 'scen_multiple': scen_multiple})
+scen_name3 = xm.load(name=name3)
+
+scenList = xm.scenList() # ['name1', 'name2', 'name3']
 ```
 
 source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/master/scenario/usage.py)
@@ -436,6 +480,7 @@ source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/mas
   - SobolRandom
 
 - Scenario
+  - Blog
   - Models
 
 <br>
@@ -446,14 +491,19 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.31.0 (2020-12-31)
+- Scenario serialization functions is added
+- Scenario save and load is added using xenarix manager
+
 ## 0.8.30.2 (2020-12-14)
 - Re-designed project is released
-- xenarix is moved to mxdevtool
+- Xenarix is moved to mxdevtool
 
 <br>
 
 # MxDevtool Structure
     ├── mxdevtool.py          <- The main library of this project.
+    ├── config.py             <- a config file of this project.
     ├── utils.py              <- Etc functions( ex - npzee ).
     │
     ├── instruments           <- financial instruments for pricing.
