@@ -509,10 +509,6 @@ For source code, check this repository.
 - Scenario serialization functions is added
 - Scenario save and load is added using xenarix manager
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 ## 0.8.30.2 (2020-12-14)
 - Re-designed project is released
 - Xenarix is moved to mxdevtool
