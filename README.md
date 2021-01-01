@@ -395,8 +395,6 @@ multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 t_time = 1.32
 multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
-
-
 ```
 
 ## Analytic Path and Test Calculation
@@ -495,6 +493,7 @@ For source code, check this repository.
 - Scenario serialization functions is added
 - Scenario save and load is added using xenarix manager
 
+
 ## 0.8.30.2 (2020-12-14)
 - Re-designed project is released
 - Xenarix is moved to mxdevtool
@@ -519,7 +518,7 @@ For source code, check this repository.
 
 <br>
 
-# Project Name
+# Todo
 Project Description
 
 ### Column Name
@@ -529,6 +528,7 @@ Project Description
 ### Completed Column ✓
 - [x] Completed task title  
 
+<br>
 
 # Npzee Viewer
 
