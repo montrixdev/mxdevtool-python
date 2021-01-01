@@ -395,8 +395,15 @@ multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 t_time = 1.32
 multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
+<<<<<<< HEAD
 ```
 
+=======
+
+
+```
+
+>>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 ## Analytic Path and Test Calculation
 
 ```python
@@ -420,12 +427,21 @@ for pv in all_calcs:
 ```
 
 ## Xenarix Manager
+<<<<<<< HEAD
 
 ```python
 xfm_config = { 'location': 'd:/mxdevtool' }
 
 xm = xen.XenarixFileManager(xfm_config)
 
+=======
+
+```python
+xfm_config = { 'location': 'd:/mxdevtool' }
+
+xm = xen.XenarixFileManager(xfm_config)
+
+>>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 filename5 = 'scen_all.npz'
 scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
 
@@ -493,7 +509,10 @@ For source code, check this repository.
 - Scenario serialization functions is added
 - Scenario save and load is added using xenarix manager
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 ## 0.8.30.2 (2020-12-14)
 - Re-designed project is released
 - Xenarix is moved to mxdevtool
