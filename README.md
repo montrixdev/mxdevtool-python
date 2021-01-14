@@ -398,7 +398,7 @@ multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 ```
 
 ## Analytic Path and Test Calculation
-
+---
 ```python
 all_pv_list = []
 all_pv_list.extend(all_models)
@@ -420,7 +420,6 @@ for pv in all_calcs:
 ```
 
 ## Xenarix Manager
-
 ```python
 xfm_config = { 'location': 'd:/mxdevtool' }
 
@@ -553,7 +552,7 @@ For source code, check this repository.
 
 ## 0.8.32.0 (2021-1-14)
 - Scenario Template Builder using market data
-- MarketDataProvider is added for scenario template building
+- MarketDataProvider is added for scenario template building(now sampledataprovider)
 
 ## 0.8.31.0 (2020-12-31)
 - Scenario serialization functions is added for comparison of two scenario
@@ -588,10 +587,19 @@ For source code, check this repository.
 
 # Todo
 
+<<<<<<< HEAD
 - [x] MarketData input supporting
 - [ ] DataProviders(ex - bloomberg, web-api, etc)
 - [ ] Shocked scenario set builder
 - [ ] Linux Supprot
+=======
+- [X] MarketData input supporting
+- [X] Scenario builder using market data
+- [X] Xenarix Manager for save, load
+- [ ] Shocked Scenario Manager
+- [ ] Market data provider for Data vendors
+- [ ] MonteCarlo Pricer
+>>>>>>> e3af1539c48a5917e98dc69d8d3c619f94e3dc29
 
 <br>
 
@@ -605,8 +613,6 @@ You can download Npzee Viewer in [WindowStore](https://www.microsoft.com/store/a
 <br>
 
 # License
-
-This mxdevtool-python project is licensed under MIT. But MxDevTool is following.
 
 MxDevTool(non-commercial version) is free for non-commercial purposes. 
 This is licensed under the terms of the [Montrix Non-Commercial License](https://www.montrix.co.kr/mxdevtool/license).
