@@ -593,7 +593,7 @@ For source code, check this repository.
 - [ ] Shocked Scenario Manager
 - [ ] Market data provider for Data vendors(ex - bloomberg, web-api, etc)
 - [ ] MonteCarlo Pricer
-- [ ] Linux Supprot
+- [ ] Linux Support
 
 <br>
 
