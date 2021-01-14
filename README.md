@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit-red.svg)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.31.0-green.svg)
+![image](https://img.shields.io/badge/version-0.8.32.0-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -274,10 +274,10 @@ Shift :
 
 ```python
 shiftRight1 = xen.Shift('shiftRight1', hw1f, shift=5)
-shiftRight2 = hw1f.shift('shiftRight2', shift=5)
+shiftRight2 = hw1f.shift('shiftRight2', shift=5, fill_value=0.0)
 
 shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5) 
-shiftLeft2 = cir1f.shift('shiftLeft1', shift=-5) 
+shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0) 
 ```
 
 Returns :
@@ -395,15 +395,8 @@ multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 t_time = 1.32
 multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
-<<<<<<< HEAD
 ```
 
-=======
-
-
-```
-
->>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 ## Analytic Path and Test Calculation
 
 ```python
@@ -427,21 +420,12 @@ for pv in all_calcs:
 ```
 
 ## Xenarix Manager
-<<<<<<< HEAD
 
 ```python
 xfm_config = { 'location': 'd:/mxdevtool' }
 
 xm = xen.XenarixFileManager(xfm_config)
 
-=======
-
-```python
-xfm_config = { 'location': 'd:/mxdevtool' }
-
-xm = xen.XenarixFileManager(xfm_config)
-
->>>>>>> 5842559d6b5b7cb8f8498a88e38851853534c840
 filename5 = 'scen_all.npz'
 scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
 
@@ -451,8 +435,7 @@ scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=
 scen_all_hashCode = scen_all.hashCode() 
 scen_all_hashCode2 = scen_all.fromDict(scen_all.toDict()).hashCode()
 
-if scen_all_hashCode != scen_all_hashCode2:
-    raise Exception('hashcode is not same')
+assert scen_all_hashCode == scen_all_hashCode2
 
 # save, load, scenario list
 name1 = 'name1'
@@ -471,6 +454,69 @@ xm.save(name=name3, scen={'scen_all' : scen_all, 'scen_multiple': scen_multiple}
 scen_name3 = xm.load(name=name3)
 
 scenList = xm.scenList() # ['name1', 'name2', 'name3']
+```
+
+## Scenario Builder
+```python
+sb = xen.ScenarioJsonBuilder()
+
+sb.addModel(xen.GBMConst.__name__, 'gbmconst', x0='kospi2', rf='cd91', div=0.01, vol=0.3)
+sb.addModel(xen.GBM.__name__, 'gbm', x0=100, rfCurve='zerocurve1', divCurve=divCurve, volTs=volTs)
+sb.addModel(xen.Heston.__name__, 'heston', x0=100, rfCurve='zerocurve1', divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
+sb.addModel(xen.HullWhite1F.__name__, 'hw1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
+sb.addModel(xen.BK1F.__name__, 'bk1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
+
+sb.addModel(xen.CIR1F.__name__, 'cir1f', r0='cd91', alpha=0.1, longterm=0.042, sigma=0.03)
+sb.addModel(xen.Vasicek1F.__name__, 'vasicek1f', r0='cd91', alpha='alpha1', longterm=0.042, sigma=0.03)
+sb.addModel(xen.G2Ext.__name__, 'g2ext', fittingCurve=rfCurve, alpha1=0.1, sigma1=0.01, alpha2=0.2, sigma2=0.02, corr=0.5)
+
+sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pc='hw1f', maturityTenor='3m', compounding=mx.Compounded)
+sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pc='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pc='hw1f')
+sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pc='hw1f', maturityTenor=mx.Period(3, mx.Months))
+
+sb.addCalc(xen.ConstantValue.__name__, 'constantValue', v=15)
+sb.addCalc(xen.ConstantArray.__name__, 'constantArr', arr=[15,14,13])
+
+sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pc1='gbmconst', pc2='gbm')
+sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pc1='gbmconst', pc2='gbm')
+sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pc1='gbmconst', pc2='gbm')
+sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2='gbm')
+
+sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1='gbmconst', pc2=10)
+sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1='gbmconst', pc2=10)
+sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1='gbmconst', pc2=1.1)
+sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2=1.1)
+
+sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1=10, pc2='gbmconst')
+sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1=10, pc2='gbmconst')
+sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1=1.1, pc2='gbmconst')
+sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1=1.1, pc2='gbmconst')
+
+sb.addCalc(xen.LinearOper.__name__, 'linearOper1', pc='gbm', multiple=1.1, spread=10)
+sb.addCalc(xen.Shift.__name__, 'shiftRight1', pc='hw1f', shift=5, fill_value=0.0)
+sb.addCalc(xen.Shift.__name__, 'shiftLeft1', pc='cir1f', shift=-5, fill_value=0.0)
+
+sb.addCalc(xen.Returns.__name__, 'returns1', pc='gbm', return_type='return')
+sb.addCalc(xen.Returns.__name__, 'logreturns1', pc='gbmconst', return_type='logreturn')
+sb.addCalc(xen.Returns.__name__, 'cumreturns1', pc='heston', return_type='cumreturn')
+sb.addCalc(xen.Returns.__name__, 'cumlogreturns1', pc='gbm', return_type='cumlogreturn')
+
+sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pc='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
+
+mdp = mx_d.SampleMarketDataProvider()
+mrk = mdp.get_data()
+
+scen = sb.build_scenario(mrk)
+
+assert scen.hashCode() == scen.fromDict(scen.toDict()).hashCode()
+assert sb.hashCode() == sb.fromDict(sb.toDict()).hashCode()
+
+res = scen.generate(filename='new_temp.npz')
+# res.show()
+
+# marketdata clone
+mrk_clone = mrk.clone()
 ```
 
 source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/master/scenario/usage.py)
@@ -505,8 +551,12 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.32.0 (2021-1-14)
+- Scenario Template Builder using market data
+- MarketDataProvider is added for scenario template building
+
 ## 0.8.31.0 (2020-12-31)
-- Scenario serialization functions is added
+- Scenario serialization functions is added for comparison of two scenario
 - Scenario save and load is added using xenarix manager
 
 ## 0.8.30.2 (2020-12-14)
@@ -519,6 +569,9 @@ For source code, check this repository.
     ├── mxdevtool.py          <- The main library of this project.
     ├── config.py             <- a config file of this project.
     ├── utils.py              <- Etc functions( ex - npzee ).
+    │
+    ├── data                  <- data modules.
+    │   └── providers           
     │
     ├── instruments           <- financial instruments for pricing.
     │   └── swap           
@@ -535,8 +588,10 @@ For source code, check this repository.
 
 # Todo
 
-- [ ] MarketData input supporting
+- [x] MarketData input supporting
+- [ ] DataProviders(ex - bloomberg, web-api, etc)
 - [ ] Shocked scenario set builder
+- [ ] Linux Supprot
 
 <br>
 
