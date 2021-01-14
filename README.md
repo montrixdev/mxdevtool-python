@@ -587,19 +587,13 @@ For source code, check this repository.
 
 # Todo
 
-<<<<<<< HEAD
-- [x] MarketData input supporting
-- [ ] DataProviders(ex - bloomberg, web-api, etc)
-- [ ] Shocked scenario set builder
-- [ ] Linux Supprot
-=======
 - [X] MarketData input supporting
 - [X] Scenario builder using market data
 - [X] Xenarix Manager for save, load
 - [ ] Shocked Scenario Manager
-- [ ] Market data provider for Data vendors
+- [ ] Market data provider for Data vendors(ex - bloomberg, web-api, etc)
 - [ ] MonteCarlo Pricer
->>>>>>> e3af1539c48a5917e98dc69d8d3c619f94e3dc29
+- [ ] Linux Supprot
 
 <br>
 
