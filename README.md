@@ -309,8 +309,8 @@ fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fi
 ```python
 timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
 timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='endofmonth')
-timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='annual', frequency_month=8, frequency_day=10)
+timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='endofmonth')
+timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='annual', frequency_month=8, frequency_day=10)
 ```
 
 ## Random Sequence Generator
