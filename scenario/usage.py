@@ -104,7 +104,7 @@ def test():
     timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
     timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
     timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='endofmonth')
-    timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='custom', frequency_month=8, frequency_day=10)
+    timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='annual', frequency_month=8, frequency_day=10)
 
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
@@ -200,7 +200,8 @@ def test():
             pass
     
     # xenarix manager
-    xfm_config = { 'location': 'd:/mxdevtool' }
+    xenrepo_path = './xenrepo'
+    xfm_config = { 'location': xenrepo_path }
 
     xm = xen.XenarixFileManager(xfm_config)
 

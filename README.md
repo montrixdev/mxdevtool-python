@@ -310,7 +310,7 @@ fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fi
 timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
 timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='endofmonth')
-timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='custom', frequency_month=8, frequency_day=10)
+timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency='annual', frequency_month=8, frequency_day=10)
 ```
 
 ## Random Sequence Generator
@@ -421,7 +421,8 @@ for pv in all_calcs:
 
 ## Xenarix Manager
 ```python
-xfm_config = { 'location': 'd:/mxdevtool' }
+xenrepo_path = './xenrepo'
+xfm_config = { 'location': xenrepo_path }
 
 xm = xen.XenarixFileManager(xfm_config)
 
