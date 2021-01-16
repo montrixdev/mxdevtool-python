@@ -1,9 +1,9 @@
 MxDevTool(Beta) : Financial Library
 ==========================
 
-![image](https://img.shields.io/badge/platform-Windows_64bit-red.svg)
+![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.32.0-green.svg)
+![image](https://img.shields.io/badge/version-0.8.32.1-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -551,6 +551,9 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.32.1 (2021-1-16)
+- Linux Support (64bit only)
+
 ## 0.8.32.0 (2021-1-14)
 - Scenario Template Builder using market data
 - MarketDataProvider is added for scenario template building(now sampledataprovider)
@@ -591,10 +594,11 @@ For source code, check this repository.
 - [X] MarketData input supporting
 - [X] Scenario builder using market data
 - [X] Xenarix Manager for save, load
+- [X] Linux Support
 - [ ] Shocked Scenario Manager
-- [ ] Market data provider for Data vendors(ex - bloomberg, web-api, etc)
+- [ ] MarketDataProvider for data vendors(ex - bloomberg, web-api, etc)
 - [ ] MonteCarlo Pricer
-- [ ] Linux Supprot
+- [ ] Documentation
 
 <br>
 

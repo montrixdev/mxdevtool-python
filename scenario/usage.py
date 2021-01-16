@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import mxdevtool as mx
 import mxdevtool.xenarix as xen
@@ -201,8 +202,11 @@ def test():
     
     # xenarix manager
     xenrepo_path = './xenrepo'
-    xfm_config = { 'location': xenrepo_path }
 
+    if not os.path.exists(xenrepo_path):
+        os.makedirs(xenrepo_path)
+
+    xfm_config = { 'location': xenrepo_path }
     xm = xen.XenarixFileManager(xfm_config)
 
     filename5 = 'scen_all.npz'
