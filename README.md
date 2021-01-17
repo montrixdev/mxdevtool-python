@@ -422,7 +422,12 @@ for pv in all_calcs:
 ## Xenarix Manager
 ```python
 xenrepo_path = './xenrepo'
+
+if not os.path.exists(xenrepo_path):
+    os.makedirs(xenrepo_path)
+
 xfm_config = { 'location': xenrepo_path }
+xm = xen.XenarixFileManager(xfm_config)
 
 xm = xen.XenarixFileManager(xfm_config)
 

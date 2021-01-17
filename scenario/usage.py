@@ -298,5 +298,3 @@ def test():
 
     # marketdata clone
     mrk_clone = mrk.clone()
-
-
