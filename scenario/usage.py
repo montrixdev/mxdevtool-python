@@ -1,9 +1,12 @@
 import os
 import numpy as np
 import mxdevtool as mx
+import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
+import mxdevtool.quotes as mx_q
 import mxdevtool.data as mx_d
+import mxdevtool.utils as utils
 
 def test():
     ref_date = mx.Date.todaysDate()
@@ -140,15 +143,9 @@ def test():
     # results
     results = results3
 
-    genInfo = results.genInfo
-    refDate = results.refDate
-    maxDate = results.maxDate
-    maxTime = results.maxTime
-    randomMomentMatch = results.randomMomentMatch
-    randomSubtype = results.randomSubtype 
-    randomType = results.randomType
-    seed = results.seed
-    shape = results.shape
+    resultsInfo = ( results.genInfo, results.refDate, results.maxDate, results.maxTime,
+                    results.randomMomentMatch, results.randomSubtype, results.randomType,
+                    results.seed, results.shape )
 
     ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
     
@@ -215,31 +212,24 @@ def test():
     filename6 = 'scen_multiple.npz'
     scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename6, isMomentMatching=False)
 
-    scen_all_hashCode = scen_all.hashCode() 
-    scen_all_hashCode2 = scen_all.fromDict(scen_all.toDict()).hashCode()
-
-    assert scen_all_hashCode == scen_all_hashCode2
+    utils.check_hashCode(scen_all)
 
     # scenario - save, load, list
     name1 = 'name1'
-    xm.save(name=name1, scen=scen_all)
+    xm.save(name=name1, scen_all=scen_all)
     scen_name1 = xm.load(name=name1)
 
-    scen_name1['scen0'].filename = './reloaded_scenfile.npz'
-    scen_name1['scen0'].generate()
+    scen_name1['scen_all'].filename = './reloaded_scenfile.npz'
+    scen_name1['scen_all'].generate()
 
     name2 = 'name2'
-    xm.save(name=name2, scen=[scen_all, scen_multiple])
+    xm.save(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
     scen_name2 = xm.load(name=name2)
 
-    name3 = 'name3'
-    xm.save(name=name3, scen={'scen_all' : scen_all, 'scen_multiple': scen_multiple})
-    scen_name3 = xm.load(name=name3)
-
-    scenList = xm.scenList() # ['name1', 'name2', 'name3']
+    scenList = xm.scenList() # ['name1', 'name2']
     
     # scenario template builder using market data
-    sb = xen.ScenarioJsonBuilder()
+    sb = xen.ScenarioBuilder()
 
     sb.addModel(xen.GBMConst.__name__, 'gbmconst', x0='kospi2', rf='cd91', div=0.01, vol=0.3)
     sb.addModel(xen.GBM.__name__, 'gbm', x0=100, rfCurve='zerocurve1', divCurve=divCurve, volTs=volTs)
@@ -285,16 +275,117 @@ def test():
 
     sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pc='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 
+    sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2='gbm')
+    sb.removeCalc('addOper_for_remove')
+
     mdp = mx_d.SampleMarketDataProvider()
     mrk = mdp.get_data()
 
     scen = sb.build_scenario(mrk)
 
-    assert scen.hashCode() == scen.fromDict(scen.toDict()).hashCode()
-    assert sb.hashCode() == sb.fromDict(sb.toDict()).hashCode()
+    utils.check_hashCode(scen, sb)
 
     res = scen.generate(filename='new_temp.npz')
     # res.show()
 
-    # marketdata clone
+    # marketdata
     mrk_clone = mrk.clone()
+    utils.compare_hashCode(mrk, mrk_clone)
+
+    zerocurve1 = mrk.get_yieldCurve('zerocurve1')
+    zerocurve2 = mrk.get_yieldCurve('zerocurve2')
+
+    # shock traits
+    quote1 = mx_q.SimpleQuote('quote1', 100)
+    
+    qst_add = mx_s.QuoteShockTrait(name='add_up1', value=10, operand='add')
+    qst_mul = mx_s.QuoteShockTrait('mul_up1', 1.1, 'mul')
+    qst_ass = mx_s.QuoteShockTrait('assign_up1', 0.03, 'assign')
+    qst_add2 = mx_s.QuoteShockTrait('add_down1', 15, 'add')
+    qst_mul2 = mx_s.QuoteShockTrait('mul_down2', 0.9, 'mul')
+
+    quoteshocktrait_list = [qst_add, qst_mul, qst_ass, qst_add2, qst_mul2]
+    quoteshocktrait_results = [100 + 10, (100 + 10)*1.1, 0.03, 0.03+15, (0.03+15)*0.9]
+    quote1_d = quote1.toDict()
+
+    for st, res in zip(quoteshocktrait_list, quoteshocktrait_results):
+        st.calculate(quote1_d)
+        assert res == quote1_d['v']
+
+    qcst = mx_s.CompositeQuoteShockTrait('comp1', [qst_add2, qst_mul2])
+
+    ycps = mx_s.YieldCurveParallelBpShockTrait('parallel_up1', 10)
+    vcps = mx_s.VolTsParallelShockTrait('vol_up1', 0.1)
+
+    shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
+
+    # qcst = mx_s.CompositeQuoteShockTrait('comp2', [qst_add2, vcps])
+
+    # build shock from shocktraits
+    shock1 = mx_s.Shock(name='shock1')
+
+    shock1.addShockTrait(target='kospi2', shocktrait=qst_add)
+    shock1.addShockTrait(target='spx', shocktrait=qst_add)
+    shock1.addShockTrait(target='*',  shocktrait=qst_add) # filter expression
+    shock1.addShockTrait(target='*', shocktrait=qst_mul)
+    shock1.addShockTrait(target='cd91', shocktrait=qst_ass)
+    shock1.addShockTrait(target='alpha1', shocktrait=qcst)
+
+    shock1.removeShockTrait(target='cd91')
+    shock1.removeShockTrait(shocktrait=qst_mul)
+    shock1.removeShockTrait(target='target2', shocktrait=ycps)
+    shock1.removeShockTraitAt(3)
+
+    # build shocked market data from shock
+    shocked_mrk1 = mx_s.build_shockedMrk(shock1, mrk)
+    shock2 = shock1.clone(name='shock2')
+    shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
+    utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
+
+    shm = mx_s.ShockScenarioModel('shm1', shock1, shock2)
+
+    shm.addGreeks('delta', up=shock1, down=shock2)
+    shm.addGreeks('gamma', up='shock1', down=shock2)
+    shm.removeGreeks('gamma')
+
+    # shock manager - save, load, list
+    # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
+    shockrepo_path = os.path.join(xenrepo_path, 'shock')
+
+    if not os.path.exists(shockrepo_path):
+        os.makedirs(shockrepo_path)
+
+    sfm_config = { 'location': shockrepo_path }
+    sfm = mx_s.ShockFileManager(sfm_config)
+
+    # shocktrait
+    sht_name = 'shocktraits'
+    sfm.save_sht(sht_name, *shocktrait_list)
+    reloaded_sht_d = sfm.load_sht(sht_name)
+    
+    for s in shocktrait_list:
+        utils.check_hashCode(s, reloaded_sht_d[s.name])
+        utils.compare_hashCode(s, reloaded_sht_d[s.name])
+
+    # shock
+    shk_name = 'shocks'
+    sfm.save_shk(shk_name, shock1, shock2)
+    reloaded_shk_d = sfm.load_shk(shk_name)
+    
+    for s in [shock1, shock2]:
+        utils.check_hashCode(s, reloaded_shk_d[s.name])
+        utils.compare_hashCode(s, reloaded_shk_d[s.name])
+
+    # shock scenario model
+    shm_name = 'shockmodel'
+    sfm.save_shm(shm_name, shm)
+    reloaded_shm_d = sfm.load_shm(shm_name)
+
+    utils.check_hashCode(shm, reloaded_shm_d[shm.name])
+    utils.compare_hashCode(shm, reloaded_shm_d[shm.name])
+
+    shocked_scen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
+
+    for i, scen in enumerate(shocked_scen_list):
+        res = scen.generate(filename='shocked_scen{0}'.format(i))
+

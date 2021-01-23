@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.32.1-green.svg)
+![image](https://img.shields.io/badge/version-0.8.33.0-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -124,9 +124,15 @@ if __name__ == "__main__":
 Import MxDevTool Library :
 
 ```python
+import os
+import numpy as np
 import mxdevtool as mx
+import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
+import mxdevtool.quotes as mx_q
+import mxdevtool.data as mx_d
+import mxdevtool.utils as utils
 ```
 
 ## Models and Calc
@@ -356,15 +362,9 @@ results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, ti
 # results
 results = results3
 
-genInfo = results.genInfo
-refDate = results.refDate
-maxDate = results.maxDate
-maxTime = results.maxTime
-randomMomentMatch = results.randomMomentMatch
-randomSubtype = results.randomSubtype 
-randomType = results.randomType
-seed = results.seed
-shape = results.shape
+resultsInfo = ( results.genInfo, results.refDate, results.maxDate, results.maxTime,
+               results.randomMomentMatch, results.randomSubtype, results.randomType,
+               results.seed, results.shape )
 
 ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
 
@@ -429,36 +429,27 @@ if not os.path.exists(xenrepo_path):
 xfm_config = { 'location': xenrepo_path }
 xm = xen.XenarixFileManager(xfm_config)
 
-xm = xen.XenarixFileManager(xfm_config)
-
 filename5 = 'scen_all.npz'
 scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
 
 filename6 = 'scen_multiple.npz'
 scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename6, isMomentMatching=False)
 
-scen_all_hashCode = scen_all.hashCode() 
-scen_all_hashCode2 = scen_all.fromDict(scen_all.toDict()).hashCode()
+utils.check_hashCode(scen_all)
 
-assert scen_all_hashCode == scen_all_hashCode2
-
-# save, load, scenario list
+# scenario - save, load, list
 name1 = 'name1'
-xm.save(name=name1, scen=scen_all)
+xm.save(name=name1, scen_all=scen_all)
 scen_name1 = xm.load(name=name1)
 
-scen_name1['scen0'].filename = './reloaded_scenfile.npz'
-scen_name1['scen0'].generate()
+scen_name1['scen_all'].filename = './reloaded_scenfile.npz'
+scen_name1['scen_all'].generate()
 
 name2 = 'name2'
-xm.save(name=name2, scen=[scen_all, scen_multiple])
+xm.save(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
 scen_name2 = xm.load(name=name2)
 
-name3 = 'name3'
-xm.save(name=name3, scen={'scen_all' : scen_all, 'scen_multiple': scen_multiple})
-scen_name3 = xm.load(name=name3)
-
-scenList = xm.scenList() # ['name1', 'name2', 'name3']
+scenList = xm.scenList() # ['name1', 'name2']
 ```
 
 ## Scenario Builder
@@ -514,14 +505,124 @@ mrk = mdp.get_data()
 
 scen = sb.build_scenario(mrk)
 
-assert scen.hashCode() == scen.fromDict(scen.toDict()).hashCode()
-assert sb.hashCode() == sb.fromDict(sb.toDict()).hashCode()
+utils.check_hashCode(scen, sb)
 
 res = scen.generate(filename='new_temp.npz')
 # res.show()
+```
 
-# marketdata clone
+## Market Data
+```python
 mrk_clone = mrk.clone()
+
+utils.compare_hashCode(mrk, mrk_clone)
+
+zerocurve1 = mrk.get_yieldCurve('zerocurve1')
+zerocurve2 = mrk.get_yieldCurve('zerocurve2')
+```
+
+## Shock Traits
+```python
+quote1 = mx_q.SimpleQuote('quote1', 100)
+
+qst_add = mx_s.QuoteShockTrait(name='add_up1', value=10, operand='add')
+qst_mul = mx_s.QuoteShockTrait('mul_up1', 1.1, 'mul')
+qst_ass = mx_s.QuoteShockTrait('assign_up1', 0.03, 'assign')
+qst_add2 = mx_s.QuoteShockTrait('add_down1', 15, 'add')
+qst_mul2 = mx_s.QuoteShockTrait('mul_down2', 0.9, 'mul')
+
+quoteshocktrait_list = [qst_add, qst_mul, qst_ass, qst_add2, qst_mul2]
+quoteshocktrait_results = [100 + 10, (100 + 10)*1.1, 0.03, 0.03+15, (0.03+15)*0.9]
+quote1_d = quote1.toDict()
+
+for st, res in zip(quoteshocktrait_list, quoteshocktrait_results):
+    st.calculate(quote1_d)
+    assert res == quote1_d['v']
+
+qcst = mx_s.CompositeQuoteShockTrait('comp1', [qst_add2, qst_mul2])
+
+ycps = mx_s.YieldCurveParallelBpShockTrait('parallel_up1', 10)
+vcps = mx_s.VolTsParallelShockTrait('vol_up1', 0.1)
+
+shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
+```
+
+## Shock 
+```python
+# build shock from shocktraits
+shock1 = mx_s.Shock(name='shock1')
+
+shock1.addShockTrait(target='kospi2', shocktrait=qst_add)
+shock1.addShockTrait(target='spx', shocktrait=qst_add)
+shock1.addShockTrait(target='*',  shocktrait=qst_add) # filter expression
+shock1.addShockTrait(target='*', shocktrait=qst_mul)
+shock1.addShockTrait(target='cd91', shocktrait=qst_ass)
+shock1.addShockTrait(target='alpha1', shocktrait=qcst)
+
+shock1.removeShockTrait(target='cd91')
+shock1.removeShockTrait(shocktrait=qst_mul)
+shock1.removeShockTrait(target='target2', shocktrait=ycps)
+shock1.removeShockTraitAt(3)
+```
+
+## Shock Scenario Model
+```python
+# build shocked market data from shock
+shocked_mrk1 = mx_s.build_shockedMrk(shock1, mrk)
+shock2 = shock1.clone(name='shock2')
+shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
+utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
+
+shm = mx_s.ShockScenarioModel('shm1', shock1, shock2)
+
+# for pricing 
+shm.addGreeks('delta', up=shock1, down=shock2)
+shm.addGreeks('gamma', up='shock1', down=shock2)
+shm.removeGreeks('gamma')
+```
+
+## Shock Manager
+```python
+# shock manager - save, load, list
+# extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
+shockrepo_path = os.path.join(xenrepo_path, 'shock')
+
+if not os.path.exists(shockrepo_path):
+    os.makedirs(shockrepo_path)
+
+sfm_config = { 'location': shockrepo_path }
+sfm = mx_s.ShockFileManager(sfm_config)
+
+# shocktrait
+sht_name = 'shocktraits'
+sfm.save_sht(sht_name, *shocktrait_list)
+reloaded_sht_d = sfm.load_sht(sht_name)
+
+for s in shocktrait_list:
+    utils.check_hashCode(s, reloaded_sht_d[s.name])
+    utils.compare_hashCode(s, reloaded_sht_d[s.name])
+
+# shock
+shk_name = 'shocks'
+sfm.save_shk(shk_name, shock1, shock2)
+reloaded_shk_d = sfm.load_shk(shk_name)
+
+for s in [shock1, shock2]:
+    utils.check_hashCode(s, reloaded_shk_d[s.name])
+    utils.compare_hashCode(s, reloaded_shk_d[s.name])
+
+# shock scenario model
+shm_name = 'shockmodel'
+sfm.save_shm(shm_name, shm)
+reloaded_shm_d = sfm.load_shm(shm_name)
+
+utils.check_hashCode(shm, reloaded_shm_d[shm.name])
+utils.compare_hashCode(shm, reloaded_shm_d[shm.name])
+
+shocked_scen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
+
+for i, scen in enumerate(shocked_scen_list):
+    res = scen.generate(filename='shocked_scen{0}'.format(i))
 ```
 
 source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/master/scenario/usage.py)
@@ -556,6 +657,9 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.33.0 (2021-1-23)
+- Shocked Scenario Manager
+
 ## 0.8.32.1 (2021-1-16)
 - Linux Support (64bit only)
 
@@ -584,6 +688,11 @@ For source code, check this repository.
     ├── instruments           <- financial instruments for pricing.
     │   └── swap           
     │
+    ├── quotes                <- market data quotes.
+    │
+    ├── shock                 <- for risk statistics, pricing, etc.
+    │   └── traits            
+    │   
     ├── termstructures        <- input parameters.
     │   ├── yieldcurve           
     │   └── volcurve           
@@ -600,7 +709,7 @@ For source code, check this repository.
 - [X] Scenario builder using market data
 - [X] Xenarix Manager for save, load
 - [X] Linux Support
-- [ ] Shocked Scenario Manager
+- [X] Shocked Scenario Manager
 - [ ] MarketDataProvider for data vendors(ex - bloomberg, web-api, etc)
 - [ ] MonteCarlo Pricer
 - [ ] Documentation
