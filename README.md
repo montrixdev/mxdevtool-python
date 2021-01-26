@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
 ![image](https://img.shields.io/badge/python-3.5|3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.33.0-green.svg)
+![image](https://img.shields.io/badge/version-0.8.33.4-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -699,7 +699,7 @@ For source code, check this repository.
 
 # Release History
 
-## 0.8.33.0 (2021-1-26)
+## 0.8.33.4 (2021-1-26)
 - Shocked Scenario Manager
 - XenarixManager is updated for ScenarioBuilder
 - Correlation matrix checking(symmetric) is added
