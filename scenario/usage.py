@@ -111,8 +111,8 @@ def test():
     timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='annual', frequency_month=8, frequency_day=10)
 
     # random
-    pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
-    sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
+    pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
+    sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
     
     # single model
     filename1='./single_model.npz'
@@ -138,14 +138,17 @@ def test():
     
     filename4='./multiple_model_with_calc_all.npz'
     corrMatrix2 = mx.IdentityMatrix(len(all_models))
+    
+    corrMatrix2[1][0] = 0.5
+    corrMatrix2[0][1] = 0.5
+
     results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename4, isMomentMatching=False)
 
     # results
     results = results3
 
-    resultsInfo = ( results.genInfo, results.refDate, results.maxDate, results.maxTime,
-                    results.randomMomentMatch, results.randomSubtype, results.randomType,
-                    results.seed, results.shape )
+    resultsInfo = (results.genInfo, results.refDate, results.maxDate, results.maxTime, results.randomMomentMatch,
+                   results.randomSubtype, results.randomType, results.seed, results.shape )
 
     ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
     
@@ -200,9 +203,6 @@ def test():
     # xenarix manager
     xenrepo_path = './xenrepo'
 
-    if not os.path.exists(xenrepo_path):
-        os.makedirs(xenrepo_path)
-
     xfm_config = { 'location': xenrepo_path }
     xm = xen.XenarixFileManager(xfm_config)
 
@@ -216,30 +216,38 @@ def test():
 
     # scenario - save, load, list
     name1 = 'name1'
-    xm.save(name=name1, scen_all=scen_all)
-    scen_name1 = xm.load(name=name1)
+    xm.save_xen(name=name1, scen_all=scen_all)
+    scen_name1_d = xm.load_xen(name=name1)
 
-    scen_name1['scen_all'].filename = './reloaded_scenfile.npz'
-    scen_name1['scen_all'].generate()
+    scen_name1_d['scen_all'].filename = './reloaded_scenfile.npz'
+    scen_name1_d['scen_all'].generate()
 
     name2 = 'name2'
-    xm.save(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
-    scen_name2 = xm.load(name=name2)
+    xm.save_xen(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
+    scen_name2_d = xm.load_xen(name=name2)
 
     scenList = xm.scenList() # ['name1', 'name2']
+
+    # generate in result directory
+    xm.generate_xen(scenList[0]) 
     
     # scenario template builder using market data
     sb = xen.ScenarioBuilder()
 
     sb.addModel(xen.GBMConst.__name__, 'gbmconst', x0='kospi2', rf='cd91', div=0.01, vol=0.3)
     sb.addModel(xen.GBM.__name__, 'gbm', x0=100, rfCurve='zerocurve1', divCurve=divCurve, volTs=volTs)
-    sb.addModel(xen.Heston.__name__, 'heston', x0=100, rfCurve='zerocurve1', divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
+    sb.addModel(xen.Heston.__name__, 'heston', x0='ni225', rfCurve='zerocurve1', divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
     sb.addModel(xen.HullWhite1F.__name__, 'hw1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
     sb.addModel(xen.BK1F.__name__, 'bk1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
 
     sb.addModel(xen.CIR1F.__name__, 'cir1f', r0='cd91', alpha=0.1, longterm=0.042, sigma=0.03)
     sb.addModel(xen.Vasicek1F.__name__, 'vasicek1f', r0='cd91', alpha='alpha1', longterm=0.042, sigma=0.03)
     sb.addModel(xen.G2Ext.__name__, 'g2ext', fittingCurve=rfCurve, alpha1=0.1, sigma1=0.01, alpha2=0.2, sigma2=0.02, corr=0.5)
+
+    sb.corr[1][0] = 0.5
+    sb.corr[0][1] = 0.5
+    sb.corr[0][2] = 'kospi2_ni225_corr'
+    sb.corr[2][0] = 'kospi2_ni225_corr'
 
     sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pc='hw1f', maturityTenor='3m', compounding=mx.Compounded)
     sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pc='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
@@ -278,8 +286,32 @@ def test():
     sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2='gbm')
     sb.removeCalc('addOper_for_remove')
 
+    # scenarioBuilder - save, load, list
     mdp = mx_d.SampleMarketDataProvider()
     mrk = mdp.get_data()
+
+    xm.save_xnb('sb1', sb=sb)
+
+    sb.setTimeGridCls(timegrid3)
+    sb.setRsgCls(pseudo_rsg)
+
+    xm.save_xnb('sb2', sb=sb)
+
+    sb.setTimeGrid(mx.TimeGrid.__name__, refDate=ref_date, maxYear=10, frequency_type='endofmonth')
+    sb.setRsg(xen.Rsg.__name__, sampleNum=1000)
+
+    xm.save_xnb('sb3', sb=sb)
+    xm.scenBuilderList() # ['sb1', 'sb2', 'sb3']
+
+    sb1_d = xm.load_xnb('sb1')
+    sb2_d = xm.load_xnb('sb2')
+    sb3_d = xm.load_xnb('sb3')
+
+    utils.compare_hashCode(sb, sb3_d['sb'])
+    utils.check_hashCode(sb, sb1_d['sb'], sb2_d['sb'], sb3_d['sb'])
+
+    xm.generate_xnb('sb1', mrk)
+    xm.load_results_xnb('sb1')
 
     scen = sb.build_scenario(mrk)
 
@@ -295,7 +327,7 @@ def test():
     zerocurve1 = mrk.get_yieldCurve('zerocurve1')
     zerocurve2 = mrk.get_yieldCurve('zerocurve2')
 
-    # shock traits
+    # shock definition
     quote1 = mx_q.SimpleQuote('quote1', 100)
     
     qst_add = mx_s.QuoteShockTrait(name='add_up1', value=10, operand='add')
@@ -326,7 +358,7 @@ def test():
 
     shock1.addShockTrait(target='kospi2', shocktrait=qst_add)
     shock1.addShockTrait(target='spx', shocktrait=qst_add)
-    shock1.addShockTrait(target='*',  shocktrait=qst_add) # filter expression
+    shock1.addShockTrait(target='ni*',  shocktrait=qst_add) # filter expression
     shock1.addShockTrait(target='*', shocktrait=qst_mul)
     shock1.addShockTrait(target='cd91', shocktrait=qst_ass)
     shock1.addShockTrait(target='alpha1', shocktrait=qcst)
@@ -340,10 +372,11 @@ def test():
     shocked_mrk1 = mx_s.build_shockedMrk(shock1, mrk)
     shock2 = shock1.clone(name='shock2')
     shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
+    
     utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
-
     shm = mx_s.ShockScenarioModel('shm1', shock1, shock2)
 
+    # for pricing 
     shm.addGreeks('delta', up=shock1, down=shock2)
     shm.addGreeks('gamma', up='shock1', down=shock2)
     shm.removeGreeks('gamma')
@@ -387,5 +420,7 @@ def test():
     shocked_scen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
 
     for i, scen in enumerate(shocked_scen_list):
+        name = 'shocked_scen{0}'.format(i)
+        xm.save_xen(name, item0=scen)
         res = scen.generate(filename='shocked_scen{0}'.format(i))
 
