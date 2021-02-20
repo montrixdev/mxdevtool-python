@@ -1,6 +1,9 @@
+# python script for VanillaOption_v1_1_0.xlsm file
 # excel link : https://blog.naver.com/montrix/221378282753
+# python link : https://blog.naver.com/montrix/***********
 
 import mxdevtool as mx
+import mxdevtool.instruments as mx_i
 import pandas as pd
 
 # vanilla option
@@ -12,7 +15,7 @@ def test():
     multiplier = 250000
     mx.Settings.instance().setEvaluationDate(refDate)
 
-    column_names = ['Name', 'Contracts', 'Type', 'S0', 'Strike', 'Rf', 'Div', 'Vol', 'Maturity']
+    column_names = ['Name', 'Contracts', 'Type', 'X0', 'Strike', 'Rf', 'Div', 'Vol', 'Maturity']
     maturityDate = mx.Date(2020, 8, 13)
 
     option1 = ['option1', 10, mx.Option.Call, 285, 280, 0.02, 0, 0.16, maturityDate]
@@ -27,7 +30,7 @@ def test():
     results = []
 
     for _, row in option_df.iterrows():
-        option = mx.EuropeanOption(row['Type'], row['S0'], row['Strike'], row['Rf'], row['Div'], row['Vol'], row['Maturity'])
+        option = mx_i.EuropeanOption(row['Type'], row['Strike'], row['Maturity']).withPricingParams_GBMConst( row['X0'], row['Rf'], row['Div'], row['Vol'])
 
         Name = row['Name'] 
         Contracts = row['Contracts']

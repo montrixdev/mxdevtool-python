@@ -1,28 +1,31 @@
+# python script for OptionCalculator_v1_1_0.xlsm file
 # excel link : https://blog.naver.com/montrix/221378282753
+# python link : https://blog.naver.com/montrix/***********
 
 import mxdevtool as mx
+import mxdevtool.instruments as mx_i
 
 # vanilla option
 
 def test():
     print('option pricing test...')
 
-    s0 = 255
+    x0 = 255
     strike = 254
-    r = 0.02
+    rf = 0.02
     div = 0.0
     vol = 0.16
     maturityDate = mx.Date(2020,8,15)
     exDates = [ mx.Date(2020,8,15), mx.Date(2020,9,15)]
 
-    european_option = mx.EuropeanOption(mx.Option.Call, s0, strike, r, div, vol, maturityDate)
-    american_option = mx.AmericanOption(mx.Option.Call, s0, strike, r, div, vol, maturityDate)
-    bermudan_option = mx.BermudanOption(mx.Option.Call, s0, strike, r, div, vol, exDates)
+    european_option = mx_i.EuropeanOption(mx.Option.Call, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    american_option = mx_i.AmericanOption(mx.Option.Call, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    bermudan_option = mx_i.BermudanOption(mx.Option.Call, strike, exDates).withPricingParams_GBMConst(x0, rf, div, vol)
 
     barrierType = mx.Barrier.UpIn
     barrier = 280
     rebate = 5
-    barrier_option = mx.BarrierOption(mx.Option.Call, barrierType, barrier, rebate, s0, strike, r, div, vol, maturityDate)
+    barrier_option = mx_i.BarrierOption(mx.Option.Call, barrierType, barrier, rebate, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
 
     options = [european_option, american_option, bermudan_option, barrier_option]
 

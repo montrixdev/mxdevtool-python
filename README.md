@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.33.9-green.svg)
+![image](https://img.shields.io/badge/version-0.8.34.0-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -131,7 +131,8 @@ import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
-import mxdevtool.data as mx_d
+import mxdevtool.data.providers as mx_dp
+import mxdevtool.data.repositories as mx_dr
 import mxdevtool.utils as utils
 ```
 
@@ -171,9 +172,24 @@ for tr in tenor_rates:
     rf_rates.append(tr[1])
     div_rates.append(tr[2])
     
+x0 = 420
+
+# yieldCurve
 rfCurve = ts.ZeroYieldCurve(ref_date, tenors, rf_rates, interpolator1DType, extrapolator1DType)
 divCurve = ts.ZeroYieldCurve(ref_date, tenors, div_rates, interpolator1DType, extrapolator1DType)
-volTs = ts.BlackConstantVol(ref_date, vol)
+
+utils.check_hashCode(rfCurve, divCurve)
+
+# variance termstructure
+const_vts = ts.BlackConstantVol(refDate=ref_date, vol=vol)
+
+periods = [str(i+1) + 'm' for i in range(0, 24)] # monthly upto 2 years
+expirydates = [null_calendar.advance(ref_date, p) for p in periods]
+volatilities = [0.260, 0.223, 0.348, 0.342, 0.328, 0.317, 0.310, 0.302, 0.296, 0.291, 0.286, 0.282, 0.278, 0.275, 0.273, 0.270, 0.267, 0.263, 0.261, 0.258, 0.255, 0.253, 0.252, 0.251]
+
+curve_vts = ts.BlackVarianceCurve(refDate=ref_date, dates=expirydates, volatilities=volatilities)
+
+utils.check_hashCode(const_vts, curve_vts)
 ```
 
 ### Models
@@ -182,17 +198,17 @@ volTs = ts.BlackConstantVol(ref_date, vol)
 Geometric Brownian Motion ( Contant Parameter ) :
 
 ```python
-gbmconst = xen.GBMConst('gbmconst', x0=100, rf=0.032, div=0.01, vol=0.15)
+gbmconst = xen.GBMConst('gbmconst', x0=x0, rf=0.032, div=0.01, vol=0.15)
 ```
 
 Geometric Brownian Motion :
 ```python
-gbm = xen.GBM('gbm', x0=100, rfCurve=rfCurve , divCurve=divCurve, volTs=volTs)
+gbm = xen.GBM('gbm', x0=x0, rfCurve=rfCurve , divCurve=divCurve, volTs=curve_vts)
 ```
 
 Heston :
 ```python
-heston = xen.Heston('heston', x0=100, rfCurve=rfCurve, divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
+heston = xen.Heston('heston', x0=x0, rfCurve=rfCurve, divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
 ```
 
 Hull-White 1 Factor :
@@ -229,7 +245,7 @@ g2ext = xen.G2Ext('g2ext', fittingCurve=rfCurve, alpha1=0.1, sigma1=0.01, alpha2
 ```
 
 ### Calcs in Models
-
+---
 ShortRate Model :
 
 ```python
@@ -354,7 +370,7 @@ all_calcs = [ hw1f_spot3m, hw1f_forward6m3m, hw1f_discountFactor, hw1f_discountB
 filename4='./multiple_model_with_calc_all.npz'
 corrMatrix2 = mx.IdentityMatrix(len(all_models))
 
-corrMatrix2[1][0] = 0.5 # correlation matrix should be symmetric
+corrMatrix2[1][0] = 0.5 # correlation matrix should be positive semidefinite
 corrMatrix2[0][1] = 0.5
 
 results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename4, isMomentMatching=False)
@@ -422,16 +438,18 @@ for pv in all_calcs:
     else:
         pass
 ```
+## Repository
+---
+```python
+repo_path = './xenrepo'
+repo_config = { 'location': repo_path }
+repo = mx_dr.FolderRepository(repo_config)
+```
 
 ## Xenarix Manager
+---
 ```python
-xenrepo_path = './xenrepo'
-
-if not os.path.exists(xenrepo_path):
-    os.makedirs(xenrepo_path)
-
-xfm_config = { 'location': xenrepo_path }
-xm = xen.XenarixFileManager(xfm_config)
+xm = repo.xenarix_manager
 
 filename5 = 'scen_all.npz'
 scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
@@ -460,6 +478,7 @@ xm.generate_xen(scenList[0])
 ```
 
 ## Scenario Builder
+---
 ```python
 sb = xen.ScenarioJsonBuilder()
 
@@ -552,6 +571,7 @@ res = scen.generate(filename='new_temp.npz')
 ```
 
 ## Market Data
+---
 ```python
 mrk_clone = mrk.clone()
 
@@ -562,6 +582,7 @@ zerocurve2 = mrk.get_yieldCurve('zerocurve2')
 ```
 
 ## Shock Traits
+---
 ```python
 quote1 = mx_q.SimpleQuote('quote1', 100)
 
@@ -588,6 +609,7 @@ shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
 ```
 
 ## Shock 
+---
 ```python
 # build shock from shocktraits
 shock1 = mx_s.Shock(name='shock1')
@@ -613,25 +635,16 @@ shock2 = shock1.clone(name='shock2')
 shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
 
 utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
-shm = mx_s.ShockScenarioModel('shm1', shock1, shock2)
 
-# for pricing 
-shm.addGreeks('delta', up=shock1, down=shock2)
-shm.addGreeks('gamma', up='shock1', down=shock2)
-shm.removeGreeks('gamma')
+shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
+shm = mx_s.ShockScenarioModel('shm1', scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
 ```
 
 ## Shock Manager
 ```python
 # shock manager - save, load, list
 # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
-shockrepo_path = os.path.join(xenrepo_path, 'shock')
-
-if not os.path.exists(shockrepo_path):
-    os.makedirs(shockrepo_path)
-
-sfm_config = { 'location': shockrepo_path }
-sfm = mx_s.ShockFileManager(sfm_config)
+sfm = repo.shock_manager
 
 # shocktrait
 sht_name = 'shocktraits'
@@ -667,6 +680,24 @@ for i, scen in enumerate(shocked_scen_list):
     res = scen.generate(filename='shocked_scen{0}'.format(i))
 ```
 
+## Market Data Providers
+---
+### Bloomberg( blpapi - DAPI )
+
+-> Requirements( now windows only ): 
+
+* Install [blpapi](https://github.com/msitt/blpapi-python) for python 
+* bloomberg terminal( anyware, proffesional ) installation for windows
+
+```python
+# bloomberg provider(blpapi) checking to request sample if available
+try:
+    mx_dp.check_bloomberg()
+except:
+    print('fail to check bloomberg')
+```
+
+
 source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/master/scenario/usage.py)
 
 <br>
@@ -699,6 +730,12 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.34.0 (2021-2-20)
+- Bloomberg dataprovider is added
+- BlackVolatilityCurve is added
+- Historical correlation sample is added
+- Instruments(Options) is redegined and namespace is changed for pricing
+
 ## 0.8.33.9 (2021-1-26)
 - Shocked Scenario Manager
 - XenarixManager is updated for ScenarioBuilder
@@ -728,10 +765,14 @@ For source code, check this repository.
     ├── utils.py              <- Etc functions( ex - npzee ).
     │
     ├── data                  <- data modules.
-    │   └── providers           
+    │   ├── providers           
+    │   └── repositories           
     │
     ├── instruments           <- financial instruments for pricing.
-    │   └── swap           
+    │   ├── swap           
+    │   ├── options           
+    │   ├── outputs           
+    │   └── pricing
     │
     ├── quotes                <- market data quotes.
     │
@@ -740,7 +781,7 @@ For source code, check this repository.
     │   
     ├── termstructures        <- input parameters.
     │   ├── yieldcurve           
-    │   └── volcurve           
+    │   └── volts           
     │
     └── xenarix               <- economic scenario generator.
         ├── core           
@@ -755,8 +796,16 @@ For source code, check this repository.
 - [X] Xenarix Manager for save, load
 - [X] Linux Support
 - [X] Shocked Scenario Manager
-- [ ] MarketDataProvider for data vendors(ex - bloomberg, web-api, etc)
+- [ ] MarketDataProvider for data vendors
+  - [X] Bloomberg DAPI(blpapi)
 - [ ] MonteCarlo Pricer
+  - [ ] Parallel Calculation(tensorflow)
+- [ ] Configuration Data Manager(calendar, ...)
+- [ ] Termstructure and ScenarioResult Graph View
+- [ ] Scenario report generating(info, summary, validation)
+- [ ] Actuarial Functions
+- [ ] Financial instruments
+- [ ] Quote design (stock, ir, fx, parameter, volatility, ...)
 - [ ] Documentation
 
 <br>

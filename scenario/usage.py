@@ -5,11 +5,12 @@ import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
-import mxdevtool.data as mx_d
+import mxdevtool.data.providers as mx_dp
 import mxdevtool.utils as utils
 
 def test():
     ref_date = mx.Date.todaysDate()
+    null_calendar = mx.NullCalendar()
 
     # (period, rf, div)
     tenor_rates = [('3M', 0.0151, 0.01),
@@ -37,15 +38,30 @@ def test():
         tenors.append(tr[0])
         rf_rates.append(tr[1])
         div_rates.append(tr[2])
-        
+
+    x0 = 420
+    
+    # yieldCurve
     rfCurve = ts.ZeroYieldCurve(ref_date, tenors, rf_rates, interpolator1DType, extrapolator1DType)
     divCurve = ts.ZeroYieldCurve(ref_date, tenors, div_rates, interpolator1DType, extrapolator1DType)
-    volTs = ts.BlackConstantVol(ref_date, vol)
+    
+    utils.check_hashCode(rfCurve, divCurve)
+
+    # variance termstructure
+    const_vts = ts.BlackConstantVol(refDate=ref_date, vol=vol)
+
+    periods = [str(i+1) + 'm' for i in range(0, 24)] # monthly upto 2 years
+    expirydates = [null_calendar.advance(ref_date, p) for p in periods]
+    volatilities = [0.260, 0.223, 0.348, 0.342, 0.328, 0.317, 0.310, 0.302, 0.296, 0.291, 0.286, 0.282, 0.278, 0.275, 0.273, 0.270, 0.267, 0.263, 0.261, 0.258, 0.255, 0.253, 0.252, 0.251]
+
+    curve_vts = ts.BlackVarianceCurve(refDate=ref_date, dates=expirydates, volatilities=volatilities)
+
+    utils.check_hashCode(const_vts, curve_vts)
 
     # models
-    gbmconst = xen.GBMConst('gbmconst', x0=100, rf=0.032, div=0.01, vol=0.15)
-    gbm = xen.GBM('gbm', x0=100, rfCurve=rfCurve , divCurve=divCurve, volTs=volTs)
-    heston = xen.Heston('heston', x0=100, rfCurve=rfCurve, divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
+    gbmconst = xen.GBMConst('gbmconst', x0=x0, rf=0.032, div=0.01, vol=0.15)
+    gbm = xen.GBM('gbm', x0=x0, rfCurve=rfCurve , divCurve=divCurve, volTs=curve_vts)
+    heston = xen.Heston('heston', x0=x0, rfCurve=rfCurve, divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
 
     alphaPara = xen.DeterministicParameter(['1y', '20y', '100y'], [0.1, 0.15, 0.15])
     sigmaPara = xen.DeterministicParameter(['20y', '100y'], [0.01, 0.015])
@@ -235,7 +251,7 @@ def test():
     sb = xen.ScenarioBuilder()
 
     sb.addModel(xen.GBMConst.__name__, 'gbmconst', x0='kospi2', rf='cd91', div=0.01, vol=0.3)
-    sb.addModel(xen.GBM.__name__, 'gbm', x0=100, rfCurve='zerocurve1', divCurve=divCurve, volTs=volTs)
+    sb.addModel(xen.GBM.__name__, 'gbm', x0=100, rfCurve='zerocurve1', divCurve=divCurve, volTs=const_vts)
     sb.addModel(xen.Heston.__name__, 'heston', x0='ni225', rfCurve='zerocurve1', divCurve=divCurve, v0=0.2, volRevertingSpeed=0.1, longTermVol=0.15, volOfVol=0.1, rho=0.3)
     sb.addModel(xen.HullWhite1F.__name__, 'hw1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
     sb.addModel(xen.BK1F.__name__, 'bk1f', fittingCurve='zerocurve2', alphaPara=alphaPara, sigmaPara=sigmaPara)
@@ -287,7 +303,8 @@ def test():
     sb.removeCalc('addOper_for_remove')
 
     # scenarioBuilder - save, load, list
-    mdp = mx_d.SampleMarketDataProvider()
+
+    mdp = mx_dp.SampleMarketDataProvider()
     mrk = mdp.get_data()
 
     xm.save_xnb('sb1', sb=sb)
@@ -374,12 +391,9 @@ def test():
     shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
     
     utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
-    shm = mx_s.ShockScenarioModel('shm1', shock1, shock2)
 
-    # for pricing 
-    shm.addGreeks('delta', up=shock1, down=shock2)
-    shm.addGreeks('gamma', up='shock1', down=shock2)
-    shm.removeGreeks('gamma')
+    shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
+    shm = mx_s.ShockScenarioModel('shm1', scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
 
     # shock manager - save, load, list
     # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
@@ -424,3 +438,12 @@ def test():
         xm.save_xen(name, item0=scen)
         res = scen.generate(filename='shocked_scen{0}'.format(i))
 
+    # bloomberg provider(blpapi) checking to request sample if available
+    try:
+        mx_dp.check_bloomberg()
+    except:
+        print('fail to check bloomberg')
+
+
+if __name__ == "__main__":
+    test()

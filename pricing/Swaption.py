@@ -1,6 +1,11 @@
+# python script for IRS_Calculator.xlsm file
+# excel link : https://blog.naver.com/montrix/221853410218
+
 import mxdevtool as mx
 import mxdevtool.termstructures as ts
-import mxdevtool.instruments as inst
+import mxdevtool.instruments as mx_i
+
+
 
 def yieldCurve():
 
@@ -50,7 +55,7 @@ def yieldCurve():
 def test():
 
     yield_curve = yieldCurve()
-    swaption = inst.makeSwaption(yieldCurve=yield_curve)
+    swaption = mx_i.makeSwaption(yieldCurve=yield_curve)
 
     print('npv : ', swaption.NPV())
     print('blackvol : ', swaption.impliedVolatility(swaption.NPV() * 0.9 ))

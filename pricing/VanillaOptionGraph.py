@@ -1,9 +1,11 @@
+# python script for VanillaOptionGraph_v1_2_0.xlsm file
 # excel link : https://blog.naver.com/montrix/222135609534
 
 import mxdevtool as mx
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import mxdevtool.instruments as mx_i
 
 # vanilla option
 
@@ -16,15 +18,15 @@ def test():
 
     maturityDate = mx.Date(2020, 8, 13)
 
-    s0 = 300
-    r = 0.02
+    x0 = 300
+    rf = 0.02
     div = 0.0
     vol = 0.16
     
-    option1 = mx.EuropeanOption(mx.Option.Call, s0, 285, r, div, vol, maturityDate)
-    option2 = mx.EuropeanOption(mx.Option.Call, s0, 270, r, div, vol, maturityDate)
-    option3 = mx.EuropeanOption(mx.Option.Put,  s0, 283, r, div, vol, maturityDate)
-    option4 = mx.EuropeanOption(mx.Option.Call, s0, 310, r, div, vol, maturityDate)
+    option1 = mx_i.EuropeanOption(mx.Option.Call, 285, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    option2 = mx_i.EuropeanOption('c', 270, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    option3 = mx_i.EuropeanOption(mx.Option.Put,  283, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    option4 = mx_i.EuropeanOption(mx.Option.Call, 310, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
     
     options = [ option1, option2, option3, option4 ]
     multiples = np.array([ 20,-15, 15, 20 ]) * multiplier
@@ -47,6 +49,13 @@ def test():
     plt.xlabel(parameter)
     plt.title(target)
     plt.show()
+
+    #results1_df = pd.DataFrame(results1)
+    #results1_df.to_csv('./excel/pricing/VanillaOptionGraphResults1.csv')
+
+    #results2 = portfolio.calculateMany(['spot','rf'], ['=','='], [spot_grid.tolist(), rf_grid.tolist()], 'npv')
+    #results2_df = pd.DataFrame(results2)
+    #results2_df.to_csv('./excel/pricing/VanillaOptionGraphResults2.csv')
 
 if __name__ == "__main__":
     test()
