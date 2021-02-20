@@ -6,6 +6,7 @@ import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
 import mxdevtool.data.providers as mx_dp
+import mxdevtool.data.repositories as mx_dr
 import mxdevtool.utils as utils
 
 def test():
@@ -13,18 +14,18 @@ def test():
     null_calendar = mx.NullCalendar()
 
     # (period, rf, div)
-    tenor_rates = [('3M', 0.0151, 0.01),
-                ('6M', 0.0152, 0.01),
-                ('9M', 0.0153, 0.01),
-                ('1Y', 0.0154, 0.01),
-                ('2Y', 0.0155, 0.01),
-                ('3Y', 0.0156, 0.01),
-                ('4Y', 0.0157, 0.01),
-                ('5Y', 0.0158, 0.01),
-                ('7Y', 0.0159, 0.01),
-                ('10Y', 0.016, 0.01),
-                ('15Y', 0.0161, 0.01),
-                ('20Y', 0.0162, 0.01)]
+    tenor_rates = [('3M',  0.0151, 0.01),
+                   ('6M',  0.0152, 0.01),
+                   ('9M',  0.0153, 0.01),
+                   ('1Y',  0.0154, 0.01),
+                   ('2Y',  0.0155, 0.01),
+                   ('3Y',  0.0156, 0.01),
+                   ('4Y',  0.0157, 0.01),
+                   ('5Y',  0.0158, 0.01),
+                   ('7Y',  0.0159, 0.01),
+                   ('10Y', 0.016,  0.01),
+                   ('15Y', 0.0161, 0.01),
+                   ('20Y', 0.0162, 0.01)]
 
     tenors = []
     rf_rates = []
@@ -40,7 +41,7 @@ def test():
         div_rates.append(tr[2])
 
     x0 = 420
-    
+
     # yieldCurve
     rfCurve = ts.ZeroYieldCurve(ref_date, tenors, rf_rates, interpolator1DType, extrapolator1DType)
     divCurve = ts.ZeroYieldCurve(ref_date, tenors, div_rates, interpolator1DType, extrapolator1DType)
@@ -216,11 +217,13 @@ def test():
         else:
             pass
     
-    # xenarix manager
-    xenrepo_path = './xenrepo'
+    # repository 
+    repo_path = './xenrepo'
+    repo_config = { 'location': repo_path }
+    repo = mx_dr.FolderRepository(repo_config)
 
-    xfm_config = { 'location': xenrepo_path }
-    xm = xen.XenarixFileManager(xfm_config)
+    # xenarix manxager
+    xm = repo.xenarix_manager
 
     filename5 = 'scen_all.npz'
     scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
@@ -391,19 +394,15 @@ def test():
     shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
     
     utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
-
+    
     shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
+
+    # up 시나리오에 shock1을 적용한게 박힘
     shm = mx_s.ShockScenarioModel('shm1', scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
 
     # shock manager - save, load, list
     # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
-    shockrepo_path = os.path.join(xenrepo_path, 'shock')
-
-    if not os.path.exists(shockrepo_path):
-        os.makedirs(shockrepo_path)
-
-    sfm_config = { 'location': shockrepo_path }
-    sfm = mx_s.ShockFileManager(sfm_config)
+    sfm = repo.shock_manager
 
     # shocktrait
     sht_name = 'shocktraits'
