@@ -730,7 +730,7 @@ For source code, check this repository.
 
 # Release History
 
-## 0.8.34.0 (2021-2-20)
+## 0.8.34.10 (2021-2-20)
 - Bloomberg dataprovider is added
 - BlackVolatilityCurve is added
 - Historical correlation sample is added
