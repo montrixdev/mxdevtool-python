@@ -136,9 +136,6 @@ import mxdevtool.utils as utils
 ```
 
 ## Models and Calc
-
----
-
 Set Common Variables :
 
 ```python
@@ -192,8 +189,6 @@ utils.check_hashCode(const_vts, curve_vts)
 ```
 
 ### Models
----
-
 Geometric Brownian Motion ( Contant Parameter ) :
 
 ```python
@@ -244,7 +239,6 @@ g2ext = xen.G2Ext('g2ext', fittingCurve=rfCurve, alpha1=0.1, sigma1=0.01, alpha2
 ```
 
 ### Calcs in Models
----
 ShortRate Model :
 
 ```python
@@ -256,8 +250,6 @@ hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Perio
 ```
 
 ### Calcs
----
-
 Constant Value and Array :
 
 ```python
@@ -324,9 +316,6 @@ fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fi
 ```
 
 ## TimeGrid
-
----
-
 ```python
 timegrid1  = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
 timegrid2  = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
@@ -347,14 +336,12 @@ timeGrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endo
 ```
 
 ## Random Sequence Generator
----
 ```python
 pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
 sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
 ```
 
 ## Scenario Generate
----
 ```python
 # single model
 filename1='./single_model.npz'
@@ -388,7 +375,6 @@ results4 = xen.generate(models=all_models, calcs=all_calcs, corr=corrMatrix2, ti
 ```
 
 ## Results
----
 ```python
 # results
 results = results3
@@ -429,7 +415,6 @@ multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 ```
 
 ## Analytic Path and Test Calculation
----
 ```python
 all_pv_list = []
 all_pv_list.extend(all_models)
@@ -450,7 +435,6 @@ for pv in all_calcs:
         pass
 ```
 ## Repository
----
 ```python
 repo_path = './xenrepo'
 repo_config = { 'location': repo_path }
@@ -459,7 +443,6 @@ mx_dr.settings.set_repo(repo)
 ```
 
 ## Xenarix Manager
----
 ```python
 xm = repo.xenarix_manager
 
@@ -490,7 +473,6 @@ xm.generate_xen(scenList[0])
 ```
 
 ## Scenario Builder
----
 ```python
 sb = xen.ScenarioJsonBuilder()
 
@@ -584,7 +566,6 @@ res1 = scen.generate_clone(filename='new_temp.npz') # clone generate with some c
 ```
 
 ## Market Data
----
 ```python
 mrk_clone = mrk.clone()
 utils.compare_hashCode(mrk, mrk_clone)
@@ -594,7 +575,6 @@ zerocurve2 = mrk.get_yieldCurve('zerocurve2')
 ```
 
 ## Shock Traits
----
 ```python
 quote1 = mx_q.SimpleQuote('quote1', 100)
 
@@ -622,7 +602,6 @@ shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
 ```
 
 ## Shock 
----
 ```python
 # build shock from shocktraits
 shock1 = mx_s.Shock(name='shock1')
@@ -708,7 +687,6 @@ for i, scen in enumerate(shocked_scen_list):
 ```
 
 ## Market Data Providers
----
 ### Bloomberg( blpapi - DAPI )
 
 -> Requirements( now windows only ): 
@@ -723,7 +701,6 @@ except: print('fail to check bloomberg')
 ```
 
 ## Instruments Pricing
----
 ```python
 # this is built-in instruments
 # option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
@@ -757,7 +734,6 @@ assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParam
 ```
 
 ## Settings
----
 ```python
 # calendar holiday
 mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
@@ -771,7 +747,6 @@ for cal in [kr_cal, user_cal]:
 ```
 
 ## Report and Graph
----
 ```python
 # graph
 # rfCurve.graph_view(show=False)
