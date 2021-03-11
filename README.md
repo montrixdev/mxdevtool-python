@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.34.11-green.svg)
+![image](https://img.shields.io/badge/version-0.8.35.1-green.svg)
 
 MxDevTool is a Integrated Developing Tools for financial analysis. 
 Now is Beta Release version. The Engine is developed by C++
@@ -828,7 +828,7 @@ For source code, check this repository.
 
 # Release History
 
-## 0.8.35.1 (2021-3-10)
+## 0.8.35.1 (2021-3-11)
 - User Calendar is added
 - Scenario Summary Report(html) is added
 - Termstructure graph view(matplot) is added
