@@ -1,3 +1,4 @@
+from mxdevtool.xenarix.core import Scenario
 import os
 import numpy as np
 import mxdevtool as mx
@@ -7,6 +8,8 @@ import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
+import mxdevtool.instruments as mx_i
+import mxdevtool.instruments.outputs as mx_io
 import mxdevtool.utils as utils
 
 def test():
@@ -122,10 +125,24 @@ def test():
     fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 
     # timegrid
-    timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
-    timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-    timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='endofmonth')
-    timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='annual', frequency_month=8, frequency_day=10)
+    maxYear = 10
+
+    timegrid1  = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
+    timegrid2  = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+    timegrid3  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='day')
+    timegrid4  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='week')
+    timegrid5  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
+    timegrid6  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
+    timegrid7  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
+    timegrid8  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
+    timegrid9  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
+    timegrid10 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
+    timegrid11 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
+    timegrid12 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
+    timegrid13 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
+    timegrid14 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
+    timegrid15 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
+    timegrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
 
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
@@ -221,6 +238,7 @@ def test():
     repo_path = './xenrepo'
     repo_config = { 'location': repo_path }
     repo = mx_dr.FolderRepository(repo_config)
+    mx_dr.settings.set_repo(repo)
 
     # xenarix manxager
     xm = repo.xenarix_manager
@@ -235,20 +253,20 @@ def test():
 
     # scenario - save, load, list
     name1 = 'name1'
-    xm.save_xen(name=name1, scen_all=scen_all)
-    scen_name1_d = xm.load_xen(name=name1)
+    xm.save_xen(name1, scen_all) # 
+    scen_name1 = xm.load_xen(name=name1)
 
-    scen_name1_d['scen_all'].filename = './reloaded_scenfile.npz'
-    scen_name1_d['scen_all'].generate()
+    scen_name1.filename = './reloaded_scenfile.npz'
+    scen_name1.generate()
 
     name2 = 'name2'
-    xm.save_xen(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
-    scen_name2_d = xm.load_xen(name=name2)
+    xm.save_xens(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
+    scen_name2 = xm.load_xens(name=name2)
 
     scenList = xm.scenList() # ['name1', 'name2']
 
     # generate in result directory
-    xm.generate_xen(scenList[0]) 
+    xm.generate_xen(scenList[0])
     
     # scenario template builder using market data
     sb = xen.ScenarioBuilder()
@@ -323,12 +341,12 @@ def test():
     xm.save_xnb('sb3', sb=sb)
     xm.scenBuilderList() # ['sb1', 'sb2', 'sb3']
 
-    sb1_d = xm.load_xnb('sb1')
-    sb2_d = xm.load_xnb('sb2')
-    sb3_d = xm.load_xnb('sb3')
+    sb1_reload = xm.load_xnb('sb1')
+    sb2_reload = xm.load_xnb('sb2')
+    sb3_reload = xm.load_xnb('sb3')
 
-    utils.compare_hashCode(sb, sb3_d['sb'])
-    utils.check_hashCode(sb, sb1_d['sb'], sb2_d['sb'], sb3_d['sb'])
+    utils.compare_hashCode(sb, sb3_reload)
+    utils.check_hashCode(sb, sb1_reload, sb2_reload, sb3_reload)
 
     xm.generate_xnb('sb1', mrk)
     xm.load_results_xnb('sb1')
@@ -337,7 +355,8 @@ def test():
 
     utils.check_hashCode(scen, sb)
 
-    res = scen.generate(filename='new_temp.npz')
+    res = scen.generate()
+    res1 = scen.generate_clone(filename='new_temp.npz') # clone generate with some change
     # res.show()
 
     # marketdata
@@ -397,17 +416,30 @@ def test():
     
     shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
 
-    # up 시나리오에 shock1을 적용한게 박힘
-    shm = mx_s.ShockScenarioModel('shm1', scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
+    shm = mx_s.ShockScenarioModel('shm1', basescen=scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
 
-    # shock manager - save, load, list
+    basescen_name = 'basescen'
+    shm.addCompositeScenRes(name='compscen1', basescen_name=basescen_name, gbmconst='s_down')
+    # shm.removeCompositeScenRes(name='compscen1')
+    shm.compositeScenResList() # ['compscen1']
+
+    # compare ?
+    csr = xen.CompositeScenarioResults(shm.shocked_scen_res_d, basescen_name, gbmconst='s_down')
+    
+    csr_arr = csr.toNumpyArr()
+    base_arr = scen.getResults().toNumpyArr()
+
+    assert base_arr[0][0][0] + qst_add.value == csr_arr[0][0][0] # replaced(gbmconst)
+    assert base_arr[0][1][0] == csr_arr[0][1][0] # not replaced(gbm)
+
+    # shock manager - save, load, list 
     # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
     sfm = repo.shock_manager
 
     # shocktrait
     sht_name = 'shocktraits'
-    sfm.save_sht(sht_name, *shocktrait_list)
-    reloaded_sht_d = sfm.load_sht(sht_name)
+    sfm.save_shts(sht_name, *shocktrait_list)
+    reloaded_sht_d = sfm.load_shts(sht_name)
     
     for s in shocktrait_list:
         utils.check_hashCode(s, reloaded_sht_d[s.name])
@@ -415,8 +447,8 @@ def test():
 
     # shock
     shk_name = 'shocks'
-    sfm.save_shk(shk_name, shock1, shock2)
-    reloaded_shk_d = sfm.load_shk(shk_name)
+    sfm.save_shks(shk_name, shock1, shock2)
+    reloaded_shk_d = sfm.load_shks(shk_name)
     
     for s in [shock1, shock2]:
         utils.check_hashCode(s, reloaded_shk_d[s.name])
@@ -425,23 +457,84 @@ def test():
     # shock scenario model
     shm_name = 'shockmodel'
     sfm.save_shm(shm_name, shm)
-    reloaded_shm_d = sfm.load_shm(shm_name)
+    reloaded_shm = sfm.load_shm(shm_name)
 
-    utils.check_hashCode(shm, reloaded_shm_d[shm.name])
-    utils.compare_hashCode(shm, reloaded_shm_d[shm.name])
+    utils.check_hashCode(shm, reloaded_shm)
+    utils.compare_hashCode(shm, reloaded_shm)
 
     shocked_scen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
 
     for i, scen in enumerate(shocked_scen_list):
         name = 'shocked_scen{0}'.format(i)
-        xm.save_xen(name, item0=scen)
-        res = scen.generate(filename='shocked_scen{0}'.format(i))
+        xm.save_xen(name, scen)
+        res = scen.generate_clone(filename=name)
 
     # bloomberg provider(blpapi) checking to request sample if available
-    try:
-        mx_dp.check_bloomberg()
-    except:
-        print('fail to check bloomberg')
+    try: mx_dp.check_bloomberg()
+    except: print('fail to check bloomberg')
+
+    # instruments pricing
+    
+    # this is built-in instruments
+    # option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
+    
+    # this is inherit instrument for user output
+    class EuropeanOptionForUserOutput(mx_i.EuropeanOption):
+        def userfunc_test(self, scen_data_d, calc_kwargs):
+            v = calc_kwargs['calc_arg1']
+            return v + 99
+
+    option = EuropeanOptionForUserOutput(option_type='c', strike=400, maturityDate=ref_date + 365)
+
+    # outputs
+    delta = mx_io.Delta(up='s_up', down='s_down')
+    gamma = mx_io.Gamma(up='s_up', center='basescen', down='s_down')
+
+    npv = mx_io.Npv(scen='basescen', currency='krw')
+    discount_cf = mx_io.CashFlow(scen='basescen', currency='krw', discount=None)
+    test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
+
+    # calculate from scenario
+    results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver', 
+                                    path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'}, 
+                                    calc_kwargs={'calc_arg1': 10})
+
+    # calculate from model
+    basescen = shm.getScenario('basescen')
+    gbmconst_basescen = basescen.getModel('gbmconst')
+    arg_d = { 'x0': gbmconst_basescen._x0, 'rf': gbmconst_basescen._rf, 'div': gbmconst_basescen._div, 'vol': gbmconst_basescen._vol }
+    assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParams_Model(gbmconst_basescen).NPV()
+    
+    # calendar holiday
+    mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
+
+    kr_cal = mx.SouthKorea()
+    user_cal = mx.UserCalendar('testcal')
+
+    for cal in [kr_cal, user_cal]:
+        repo.addHolidays(cal, mydates, onlyrepo=False)
+        # repo.removeHolidays(cal, mydates, onlyrepo=False)
+
+    # graph
+    # rfCurve.graph_view(show=False)
+
+    # report
+    html_template = '''
+        <!DOCTYPE html>
+        <html>
+        <head><title>{{ name }}</title></head>
+        <body>
+            <h1>Scenario Summary - Custom Template</h1>
+            <p>models : {{ models_num }} - {{ model_names }}</p>
+            <p>calcs : {{ calcs_num }} - {{ calc_names }}</p>
+            <p>corr : {{ corr }}</p>
+            <p>timegrid : {{ timegrid_items }}</p>
+            <p>filename : {{ scen.filename }}</p>
+            <p>ismomentmatch : {{ scen.isMomentMatching }}</p>
+        </body>
+        '''
+
+    html = scen.report(typ='html', html_template=html_template, browser_isopen=False)
 
 
 if __name__ == "__main__":

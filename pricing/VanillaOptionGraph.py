@@ -23,10 +23,10 @@ def test():
     div = 0.0
     vol = 0.16
     
-    option1 = mx_i.EuropeanOption(mx.Option.Call, 285, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
-    option2 = mx_i.EuropeanOption('c', 270, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
-    option3 = mx_i.EuropeanOption(mx.Option.Put,  283, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
-    option4 = mx_i.EuropeanOption(mx.Option.Call, 310, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    option1 = mx_i.EuropeanOption(mx.Option.Call, 285, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
+    option2 = mx_i.EuropeanOption('c', 270, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
+    option3 = mx_i.EuropeanOption(mx.Option.Put,  283, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
+    option4 = mx_i.EuropeanOption(mx.Option.Call, 310, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
     
     options = [ option1, option2, option3, option4 ]
     multiples = np.array([ 20,-15, 15, 20 ]) * multiplier

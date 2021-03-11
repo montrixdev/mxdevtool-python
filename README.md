@@ -29,7 +29,6 @@ Functionalty :
 
 # Installation
 
-
 To install MxDevTool, simply use pip :
 
 ``` {.sourceCode .bash}
@@ -146,16 +145,16 @@ Set Common Variables :
 ref_date = mx.Date.todaysDate()
 
 # (period, rf, div)
-tenor_rates = [('3M', 0.0151, 0.01),
-               ('6M', 0.0152, 0.01),
-               ('9M', 0.0153, 0.01),
-               ('1Y', 0.0154, 0.01),
-               ('2Y', 0.0155, 0.01),
-               ('3Y', 0.0156, 0.01),
-               ('4Y', 0.0157, 0.01),
-               ('5Y', 0.0158, 0.01),
-               ('7Y', 0.0159, 0.01),
-               ('10Y', 0.016, 0.01),
+tenor_rates = [('3M',  0.0151, 0.01),
+               ('6M',  0.0152, 0.01),
+               ('9M',  0.0153, 0.01),
+               ('1Y',  0.0154, 0.01),
+               ('2Y',  0.0155, 0.01),
+               ('3Y',  0.0156, 0.01),
+               ('4Y',  0.0157, 0.01),
+               ('5Y',  0.0158, 0.01),
+               ('7Y',  0.0159, 0.01),
+               ('10Y', 0.0160, 0.01),
                ('15Y', 0.0161, 0.01),
                ('20Y', 0.0162, 0.01)]
 
@@ -329,10 +328,22 @@ fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fi
 ---
 
 ```python
-timegrid1 = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
-timegrid2 = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-timegrid3 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='endofmonth')
-timegrid4 = mx.TimeGrid(refDate=ref_date, maxYear=10, frequency_type='annual', frequency_month=8, frequency_day=10)
+timegrid1  = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
+timegrid2  = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+timeGrid3  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='day')
+timeGrid4  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='week')
+timeGrid5  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
+timeGrid6  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
+timeGrid7  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
+timeGrid8  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
+timeGrid9  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
+timeGrid10 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
+timeGrid11 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
+timeGrid12 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
+timeGrid13 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
+timeGrid14 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
+timeGrid15 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
+timeGrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
 ```
 
 ## Random Sequence Generator
@@ -444,6 +455,7 @@ for pv in all_calcs:
 repo_path = './xenrepo'
 repo_config = { 'location': repo_path }
 repo = mx_dr.FolderRepository(repo_config)
+mx_dr.settings.set_repo(repo)
 ```
 
 ## Xenarix Manager
@@ -461,15 +473,15 @@ utils.check_hashCode(scen_all)
 
 # scenario - save, load, list
 name1 = 'name1'
-xm.save_xen(name=name1, scen_all=scen_all)
-scen_name1_d = xm.load_xen(name=name1)
+xm.save_xen(name1, scen_all) # single contents
+scen_name1 = xm.load_xen(name=name1)
 
-scen_name1_d['scen_all'].filename = './reloaded_scenfile.npz'
-scen_name1_d['scen_all'].generate()
+scen_name1.filename = './reloaded_scenfile.npz'
+scen_name1.generate()
 
 name2 = 'name2'
-xm.save_xen(name=name2, scen_all=scen_all, scen_multiple=scen_multiple)
-scen_name2_d = xm.load_xen(name=name2)
+xm.save_xens(name=name2, scen_all=scen_all, scen_multiple=scen_multiple) # multiple contents
+scen_name2 = xm.load_xens(name=name2) 
 
 scenList = xm.scenList() # ['name1', 'name2']
 
@@ -536,7 +548,7 @@ sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2=
 sb.removeCalc('addOper_for_remove')
 
 # scenarioBuilder - save, load, list
-mdp = mx_d.SampleMarketDataProvider()
+mdp = mx_dp.SampleMarketDataProvider()
 mrk = mdp.get_data()
 
 xm.save_xnb('sb1', sb=sb)
@@ -552,12 +564,12 @@ sb.setRsg(xen.Rsg.__name__, sampleNum=1000)
 xm.save_xnb('sb3', sb=sb)
 xm.scenBuilderList() # ['sb1', 'sb2', 'sb3']
 
-sb1_d = xm.load_xnb('sb1')
-sb2_d = xm.load_xnb('sb2')
-sb3_d = xm.load_xnb('sb3')
+sb1_reload = xm.load_xnb('sb1')
+sb2_reload = xm.load_xnb('sb2')
+sb3_reload = xm.load_xnb('sb3')
 
-utils.compare_hashCode(sb, sb3_d['sb'])
-utils.check_hashCode(sb, sb1_d['sb'], sb2_d['sb'], sb3_d['sb'])
+utils.compare_hashCode(sb, sb3_reload)
+utils.check_hashCode(sb, sb1_reload, sb2_reload, sb3_reload)
 
 xm.generate_xnb('sb1', mrk)
 xm.load_results_xnb('sb1')
@@ -566,7 +578,8 @@ scen = sb.build_scenario(mrk)
 
 utils.check_hashCode(scen, sb)
 
-res = scen.generate(filename='new_temp.npz')
+res = scen.generate()
+res1 = scen.generate_clone(filename='new_temp.npz') # clone generate with some change
 # res.show()
 ```
 
@@ -574,7 +587,6 @@ res = scen.generate(filename='new_temp.npz')
 ---
 ```python
 mrk_clone = mrk.clone()
-
 utils.compare_hashCode(mrk, mrk_clone)
 
 zerocurve1 = mrk.get_yieldCurve('zerocurve1')
@@ -604,6 +616,7 @@ qcst = mx_s.CompositeQuoteShockTrait('comp1', [qst_add2, qst_mul2])
 
 ycps = mx_s.YieldCurveParallelBpShockTrait('parallel_up1', 10)
 vcps = mx_s.VolTsParallelShockTrait('vol_up1', 0.1)
+# qcst = mx_s.CompositeQuoteShockTrait('comp2', [qst_add2, vcps])
 
 shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
 ```
@@ -637,19 +650,33 @@ shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
 utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
 
 shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
-shm = mx_s.ShockScenarioModel('shm1', scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
+
+shm = mx_s.ShockScenarioModel('shm1', basescen=scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
+
+basescen_name = 'basescen'
+shm.addCompositeScenRes(name='compscen1', basescen_name=basescen_name, gbmconst='s_down')
+# shm.removeCompositeScenRes(name='compscen1')
+shm.compositeScenResList() # ['compscen1']
+
+csr = xen.CompositeScenarioResults(shm.shocked_scen_res_d, basescen_name, gbmconst='s_down')
+
+csr_arr = csr.toNumpyArr()
+base_arr = scen.getResults().toNumpyArr()
+
+assert base_arr[0][0][0] + qst_add.value == csr_arr[0][0][0] # replaced(gbmconst)
+assert base_arr[0][1][0] == csr_arr[0][1][0] # not replaced(gbm)
 ```
 
 ## Shock Manager
 ```python
-# shock manager - save, load, list
+# shock manager - save, load, list 
 # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
 sfm = repo.shock_manager
 
 # shocktrait
 sht_name = 'shocktraits'
-sfm.save_sht(sht_name, *shocktrait_list)
-reloaded_sht_d = sfm.load_sht(sht_name)
+sfm.save_shts(sht_name, *shocktrait_list)
+reloaded_sht_d = sfm.load_shts(sht_name)
 
 for s in shocktrait_list:
     utils.check_hashCode(s, reloaded_sht_d[s.name])
@@ -657,8 +684,8 @@ for s in shocktrait_list:
 
 # shock
 shk_name = 'shocks'
-sfm.save_shk(shk_name, shock1, shock2)
-reloaded_shk_d = sfm.load_shk(shk_name)
+sfm.save_shks(shk_name, shock1, shock2)
+reloaded_shk_d = sfm.load_shks(shk_name)
 
 for s in [shock1, shock2]:
     utils.check_hashCode(s, reloaded_shk_d[s.name])
@@ -667,17 +694,17 @@ for s in [shock1, shock2]:
 # shock scenario model
 shm_name = 'shockmodel'
 sfm.save_shm(shm_name, shm)
-reloaded_shm_d = sfm.load_shm(shm_name)
+reloaded_shm = sfm.load_shm(shm_name)
 
-utils.check_hashCode(shm, reloaded_shm_d[shm.name])
-utils.compare_hashCode(shm, reloaded_shm_d[shm.name])
+utils.check_hashCode(shm, reloaded_shm)
+utils.compare_hashCode(shm, reloaded_shm)
 
 shocked_scen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
 
 for i, scen in enumerate(shocked_scen_list):
     name = 'shocked_scen{0}'.format(i)
-    xm.save_xen(name, item0=scen)
-    res = scen.generate(filename='shocked_scen{0}'.format(i))
+    xm.save_xen(name, scen)
+    res = scen.generate_clone(filename=name)
 ```
 
 ## Market Data Providers
@@ -691,12 +718,83 @@ for i, scen in enumerate(shocked_scen_list):
 
 ```python
 # bloomberg provider(blpapi) checking to request sample if available
-try:
-    mx_dp.check_bloomberg()
-except:
-    print('fail to check bloomberg')
+try: mx_dp.check_bloomberg()
+except: print('fail to check bloomberg')
 ```
 
+## Instruments Pricing
+---
+```python
+# this is built-in instruments
+# option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
+
+# this is inherit instrument for user output
+class EuropeanOptionForUserOutput(mx_i.EuropeanOption):
+    def userfunc_test(self, scen_data_d, calc_kwargs):
+        v = calc_kwargs['calc_arg1']
+        return v + 99
+
+option = EuropeanOptionForUserOutput(option_type='c', strike=400, maturityDate=ref_date + 365)
+
+# outputs
+delta = mx_io.Delta(up='s_up', down='s_down')
+gamma = mx_io.Gamma(up='s_up', center='basescen', down='s_down')
+
+npv = mx_io.Npv(scen='basescen', currency='krw')
+discount_cf = mx_io.CashFlow(scen='basescen', currency='krw', discount=None)
+test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
+
+# calculate from scenario
+results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver', 
+                                path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'}, 
+                                calc_kwargs={'calc_arg1': 10})
+
+# calculate from model
+basescen = shm.getScenario('basescen')
+gbmconst_basescen = basescen.getModel('gbmconst')
+arg_d = { 'x0': gbmconst_basescen._x0, 'rf': gbmconst_basescen._rf, 'div': gbmconst_basescen._div, 'vol': gbmconst_basescen._vol }
+assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParams_Model(gbmconst_basescen).NPV()
+```
+
+## Settings
+---
+```python
+# calendar holiday
+mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
+
+kr_cal = mx.SouthKorea()
+user_cal = mx.UserCalendar('testcal')
+
+for cal in [kr_cal, user_cal]:
+    repo.addHolidays(cal, mydates, onlyrepo=False)
+    # repo.removeHolidays(cal, mydates, onlyrepo=False)
+```
+
+## Report and Graph
+---
+```python
+# graph
+# rfCurve.graph_view(show=False)
+
+# report
+html_template = '''
+    <!DOCTYPE html>
+    <html>
+    <head><title>{{ name }}</title></head>
+    <body>
+        <h1>Scenario Summary - Custom Template</h1>
+        <p>models : {{ models_num }} - {{ model_names }}</p>
+        <p>calcs : {{ calcs_num }} - {{ calc_names }}</p>
+        <p>corr : {{ corr }}</p>
+        <p>timegrid : {{ timegrid_items }}</p>
+        <p>filename : {{ scen.filename }}</p>
+        <p>ismomentmatch : {{ scen.isMomentMatching }}</p>
+    </body>
+    </html>
+    '''
+
+html = scen.report(typ='html', html_template=html_template, browser_isopen=False)
+```
 
 source file - [usage.py](https://github.com/montrixdev/mxdevtool-python/blob/master/scenario/usage.py)
 
@@ -730,11 +828,22 @@ For source code, check this repository.
 
 # Release History
 
+## 0.8.35.1 (2021-3-10)
+- User Calendar is added
+- Scenario Summary Report(html) is added
+- Termstructure graph view(matplot) is added
+- MonteCalro pricing function is added
+- Financial instruments pricing function is integrated with monteCalro pricing
+- Options arguments is redegined
+- File save is redegined
+- File extensions(xens, xnbs, shks) for multiple contentes is added to Managers(scen, shock)
+- TimeGrid bug is fixed(quarter, semiannual)
+
 ## 0.8.34.11 (2021-2-20)
 - Bloomberg dataprovider is added
 - BlackVolatilityCurve is added
 - Historical correlation sample is added
-- Instruments(Options) is redegined and namespace is changed for pricing
+- Instruments(sptions) is redegined and namespace is changed for pricing
 
 ## 0.8.33.9 (2021-1-26)
 - Shocked Scenario Manager
@@ -760,9 +869,9 @@ For source code, check this repository.
 <br>
 
 # MxDevtool Structure
-    ├── mxdevtool.py          <- The main library of this project.
-    ├── config.py             <- a config file of this project.
-    ├── utils.py              <- Etc functions( ex - npzee ).
+    ├── mxdevtool             <- The main library of this project.
+    ├── config                <- a config file of this project.
+    ├── utils                 <- Etc functions( ex - npzee ).
     │
     ├── data                  <- data modules.
     │   ├── providers           
@@ -772,7 +881,8 @@ For source code, check this repository.
     │   ├── swap           
     │   ├── options           
     │   ├── outputs           
-    │   └── pricing
+    │   ├── pricing
+    │   └── swap
     │
     ├── quotes                <- market data quotes.
     │
@@ -780,8 +890,8 @@ For source code, check this repository.
     │   └── traits            
     │   
     ├── termstructures        <- input parameters.
-    │   ├── yieldcurve           
-    │   └── volts           
+    │   ├── volts           
+    │   └── yieldcurve
     │
     └── xenarix               <- economic scenario generator.
         ├── core           
@@ -798,13 +908,16 @@ For source code, check this repository.
 - [X] Shocked Scenario Manager
 - [ ] MarketDataProvider for data vendors
   - [X] Bloomberg DAPI(blpapi)
-- [ ] MonteCarlo Pricer
-  - [ ] Parallel Calculation(tensorflow)
-- [ ] Configuration Data Manager(calendar, ...)
-- [ ] Termstructure and ScenarioResult Graph View
-- [ ] Scenario report generating(info, summary, validation)
-- [ ] Actuarial Functions
+- [X] MonteCarlo pricer
+  - [X] Cpu calculation
+  - [ ] Cpu/Gpu parallel calculation
+- [X] Configuration Data Manager(calendar, ...)
+- [X] Graph View(termstructure, scenarioResults)
+- [X] Scenario report generating(summary, ...)
+- [ ] Actuarial functions(mortality)
 - [ ] Financial instruments
+  - [X] Structure
+- [ ] Package extension architecture
 - [ ] Quote design (stock, ir, fx, parameter, volatility, ...)
 - [ ] Documentation
 

@@ -30,7 +30,7 @@ def test():
     results = []
 
     for _, row in option_df.iterrows():
-        option = mx_i.EuropeanOption(row['Type'], row['Strike'], row['Maturity']).withPricingParams_GBMConst( row['X0'], row['Rf'], row['Div'], row['Vol'])
+        option = mx_i.EuropeanOption(row['Type'], row['Strike'], row['Maturity']).setPricingParams_GBMConst( row['X0'], row['Rf'], row['Div'], row['Vol'])
 
         Name = row['Name'] 
         Contracts = row['Contracts']

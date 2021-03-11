@@ -18,14 +18,14 @@ def test():
     maturityDate = mx.Date(2020,8,15)
     exDates = [ mx.Date(2020,8,15), mx.Date(2020,9,15)]
 
-    european_option = mx_i.EuropeanOption(mx.Option.Call, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
-    american_option = mx_i.AmericanOption(mx.Option.Call, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
-    bermudan_option = mx_i.BermudanOption(mx.Option.Call, strike, exDates).withPricingParams_GBMConst(x0, rf, div, vol)
+    european_option = mx_i.EuropeanOption(mx.Option.Call, strike, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
+    american_option = mx_i.AmericanOption(mx.Option.Call, strike, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
+    bermudan_option = mx_i.BermudanOption(mx.Option.Call, strike, exDates).setPricingParams_GBMConst(x0, rf, div, vol)
 
     barrierType = mx.Barrier.UpIn
     barrier = 280
     rebate = 5
-    barrier_option = mx_i.BarrierOption(mx.Option.Call, barrierType, barrier, rebate, strike, maturityDate).withPricingParams_GBMConst(x0, rf, div, vol)
+    barrier_option = mx_i.BarrierOption(mx.Option.Call, barrierType, barrier, rebate, strike, maturityDate).setPricingParams_GBMConst(x0, rf, div, vol)
 
     options = [european_option, american_option, bermudan_option, barrier_option]
 
