@@ -472,6 +472,18 @@ scenList = xm.scenList() # ['name1', 'name2']
 xm.generate_xen(scenList[0])
 ```
 
+## Market Data
+```python
+mdp = mx_dp.SampleMarketDataProvider()
+mrk = mdp.get_data()
+
+mrk_clone = mrk.clone()
+utils.compare_hashCode(mrk, mrk_clone)
+
+zerocurve1 = mrk.get_yieldCurve('zerocurve1')
+zerocurve2 = mrk.get_yieldCurve('zerocurve2')
+```
+
 ## Scenario Builder
 ```python
 sb = xen.ScenarioJsonBuilder()
@@ -530,9 +542,6 @@ sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2=
 sb.removeCalc('addOper_for_remove')
 
 # scenarioBuilder - save, load, list
-mdp = mx_dp.SampleMarketDataProvider()
-mrk = mdp.get_data()
-
 xm.save_xnb('sb1', sb=sb)
 
 sb.setTimeGridCls(timegrid3)
@@ -563,15 +572,6 @@ utils.check_hashCode(scen, sb)
 res = scen.generate()
 res1 = scen.generate_clone(filename='new_temp.npz') # clone generate with some change
 # res.show()
-```
-
-## Market Data
-```python
-mrk_clone = mrk.clone()
-utils.compare_hashCode(mrk, mrk_clone)
-
-zerocurve1 = mrk.get_yieldCurve('zerocurve1')
-zerocurve2 = mrk.get_yieldCurve('zerocurve2')
 ```
 
 ## Shock Traits
