@@ -4,7 +4,7 @@
 
 import mxdevtool as mx
 import mxdevtool.instruments as mx_i
-import pandas as pd
+# import pandas as pd
 
 # vanilla option
 
@@ -22,18 +22,27 @@ def test():
     option2 = ['option2', -8, mx.Option.Put, 285, 275, 0.02, 0, 0.16, maturityDate]
     option3 = ['option3', 10, mx.Option.Call, 285, 265, 0.02, 0, 0.16, maturityDate]
     option4 = ['option4', 10, mx.Option.Call, 285, 261.5, 0.02, 0, 0.16, maturityDate]
-    
-    opsion_arr = [option1, option2, option3, option4]
 
-    option_df = pd.DataFrame(opsion_arr, columns=column_names)
+    option_arr = [option1, option2, option3, option4]
+
+    # option_df = pd.DataFrame(opsion_arr, columns=column_names)
 
     results = []
 
-    for _, row in option_df.iterrows():
-        option = mx_i.EuropeanOption(row['Type'], row['Strike'], row['Maturity']).setPricingParams_GBMConst( row['X0'], row['Rf'], row['Div'], row['Vol'])
+    for opt in option_arr:
 
-        Name = row['Name'] 
-        Contracts = row['Contracts']
+        option_type = opt[2]
+        strike = opt[4]
+        maturity = opt[8]
+        x0 = opt[3]
+        rf = opt[5]
+        div = opt[6]
+        vol = opt[7]
+
+        option = mx_i.EuropeanOption(option_type, strike, maturity).setPricingParams_GBMConst(x0, rf, div, vol)
+
+        Name = opt[0]
+        Contracts = opt[1]
         NPV = multiplier * Contracts * option.NPV()
         Delta = multiplier * Contracts * option.delta()
         Gamma = multiplier * Contracts * option.gamma()
@@ -57,10 +66,10 @@ def test():
         print('impliedVolatility   :', ImVol)
         print('UnitNPV   :', UnitNPV)
         print()
-    
-    print('export csv file')
-    results_df = pd.DataFrame(results, columns=['Name', 'NPV', 'Delta', 'Gamma', 'Vega', 'Theta', 'Rho', 'DivRho', 'ImVol', 'UnitNPV'])
-    results_df.to_csv('VanillaOptionResults.csv')
+
+    # print('export csv file')
+    # results_df = pd.DataFrame(results, columns=['Name', 'NPV', 'Delta', 'Gamma', 'Vega', 'Theta', 'Rho', 'DivRho', 'ImVol', 'UnitNPV'])
+    # results_df.to_csv('VanillaOptionResults.csv')
 
 if __name__ == "__main__":
     test()
