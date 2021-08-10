@@ -3,7 +3,7 @@ import mxdevtool as mx
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 
-filename = 'D:/test_stepdown.npz'
+filename = './test_stepdown.npz'
 refDate = mx.Date(2012,8,22)
 riskFree = 0.0307
 
@@ -43,7 +43,7 @@ class StepDownPayoff:
 
 	def get_min_return(self, multi_path, t_pos):
 		min_return = 1.0
-		
+
 		for i, initial_value in enumerate(self.initial_values):
 			min_return = min(min_return, multi_path[i][t_pos] / initial_value)
 
@@ -70,7 +70,7 @@ class StepDownPayoff:
 				rate = cpn[2]
 				return self.notional * (1.0 + rate) * disc
 
-		
+
 
 		last_cpn = self.coupons[-1]
 		last_t_pos = self.coupon_tpos[-1]
@@ -119,7 +119,7 @@ def build_scenario(overwrite=True):
 
 	gbmconst1 = xen.GBMConst('gbmconst1', initialValues[0], riskFree, dividends[0], volatilities[0])
 	gbmconst2 = xen.GBMConst('gbmconst2', initialValues[1], riskFree, dividends[1], volatilities[1])
-	
+
 	models = [gbmconst1, gbmconst2]
 	corr = 0.6031
 
@@ -129,7 +129,7 @@ def build_scenario(overwrite=True):
 
 	timeGrid = mx.TimeEqualGrid(refDate, 3, 365)
 
-	# random 
+	# random
 	rsg = xen.Rsg(sampleNum=5000)
 	xen.generate(models, None, corrMatrix, timeGrid, rsg, filename, False)
 
@@ -141,8 +141,8 @@ def pricing():
 	payoff.initialize_timeGrid(results.timegrid)
 
 	simulNum = results.simulNum
-	discount_curve = ts.FlatForward(refDate, 0.0307, mx.Actual365Fixed())
-	
+	discount_curve = ts.FlatForward(refDate, 0.0307)
+
 	v = 0
 
 	for i in range(simulNum):

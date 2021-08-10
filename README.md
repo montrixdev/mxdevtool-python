@@ -5,11 +5,11 @@ MxDevTool(Beta) : Financial Library
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
 ![image](https://img.shields.io/badge/version-0.8.35.1-green.svg)
 
-MxDevTool is a Integrated Developing Tools for financial analysis. 
+MxDevTool is a Integrated Developing Tools for financial analysis.
 Now is Beta Release version. The Engine is developed by C++
 and based on QuantLib.
 
-Xenarix(Economic Scenario Generator) is moved into submodule of MxDevTool. 
+Xenarix(Economic Scenario Generator) is moved into submodule of MxDevTool.
 
 <br>
 
@@ -37,12 +37,12 @@ $ pip install mxdevtool
 
 # Install Troubleshooting
 
-If you have following error : 
+If you have following error :
 
 ```
-ERROR: No matching distribution found for ( numpy, matplotlib, pandas ) (from mxdevtool==0.8.30.2)
+ERROR: No matching distribution found for ( numpy ) (from mxdevtool==0.8.30.2)
 ```
-You need to install ( numpy, matplotlib, pandas ) first. 
+You need to install ( numpy ) first.
 
 <br>
 
@@ -68,7 +68,7 @@ import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import numpy as np
 
-filename = 'D:/test_hw1f.npz'
+filename = './test_hw1f.npz'
 ref_date = mx.Date.todaysDate()
 
 def model():
@@ -110,7 +110,7 @@ def test():
     timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
     rsg = xen.Rsg(sampleNum=5000)
     results = xen.generate1d(m, None, timeGrid, rsg, filename, False)
-    
+
 if __name__ == "__main__":
     test()
 
@@ -167,7 +167,7 @@ for tr in tenor_rates:
     tenors.append(tr[0])
     rf_rates.append(tr[1])
     div_rates.append(tr[2])
-    
+
 x0 = 420
 
 # yieldCurve
@@ -261,7 +261,7 @@ Operators :
 
 ```python
 oper1 = gbmconst + gbm
-oper2 = gbmconst - gbm 
+oper2 = gbmconst - gbm
 oper3 = (gbmconst * gbm).withName('multiple_gbmconst_gbm')
 oper4 = gbmconst / gbm
 
@@ -289,8 +289,8 @@ Shift :
 shiftRight1 = xen.Shift('shiftRight1', hw1f, shift=5)
 shiftRight2 = hw1f.shift('shiftRight2', shift=5, fill_value=0.0)
 
-shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5) 
-shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0) 
+shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5)
+shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0)
 ```
 
 Returns :
@@ -389,12 +389,12 @@ t_pos = 1
 scenCount = 15
 
 # scenario path of selected scenCount
-# ((100.0, 82.94953421561434, 110.87375162324332, 91.96798678908293, 70.29920544659505, ... ), 
-#  (100.0, 96.98838977927142, 97.0643112022828, 91.19803393176569, 104.94407125936456, ... ), 
+# ((100.0, 82.94953421561434, 110.87375162324332, 91.96798678908293, 70.29920544659505, ... ),
+#  (100.0, 96.98838977927142, 97.0643112022828, 91.19803393176569, 104.94407125936456, ... ),
 #  ...
 #  (200.0, 179.93792399488575, 207.93806282552612, 183.16602072084862, ... ),
 #  (9546.93761943355, 9969.778029330208, 10758.449206155927, 11107.968356394866, ... ))
-multipath = results[scenCount] 
+multipath = results[scenCount]
 multipath_arr = ndarray[scenCount]
 
 # t_pos data
@@ -422,7 +422,7 @@ all_pv_list.extend(all_calcs)
 
 for pv in all_pv_list:
     analyticPath = pv.analyticPath(timegrid2)
-    
+
 input_arr = [0.01, 0.02, 0.03, 0.04, 0.05]
 input_arr2d = [[0.01, 0.02, 0.03, 0.04, 0.05], [0.06, 0.07, 0.08, 0.09, 0.1]]
 
@@ -464,7 +464,7 @@ scen_name1.generate()
 
 name2 = 'name2'
 xm.save_xens(name=name2, scen_all=scen_all, scen_multiple=scen_multiple) # multiple contents
-scen_name2 = xm.load_xens(name=name2) 
+scen_name2 = xm.load_xens(name=name2)
 
 scenList = xm.scenList() # ['name1', 'name2']
 
@@ -601,7 +601,7 @@ vcps = mx_s.VolTsParallelShockTrait('vol_up1', 0.1)
 shocktrait_list = quoteshocktrait_list + [qcst, ycps, vcps]
 ```
 
-## Shock 
+## Shock
 ```python
 # build shock from shocktraits
 shock1 = mx_s.Shock(name='shock1')
@@ -648,7 +648,7 @@ assert base_arr[0][1][0] == csr_arr[0][1][0] # not replaced(gbm)
 
 ## Shock Manager
 ```python
-# shock manager - save, load, list 
+# shock manager - save, load, list
 # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
 sfm = repo.shock_manager
 
@@ -689,9 +689,9 @@ for i, scen in enumerate(shocked_scen_list):
 ## Market Data Providers
 ### Bloomberg( blpapi - DAPI )
 
--> Requirements( now windows only ): 
+-> Requirements( now windows only ):
 
-* Install [blpapi](https://github.com/msitt/blpapi-python) for python 
+* Install [blpapi](https://github.com/msitt/blpapi-python) for python
 * bloomberg terminal( anyware, proffesional ) installation for windows
 
 ```python
@@ -722,8 +722,8 @@ discount_cf = mx_io.CashFlow(scen='basescen', currency='krw', discount=None)
 test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
 
 # calculate from scenario
-results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver', 
-                                path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'}, 
+results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver',
+                                path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'},
                                 calc_kwargs={'calc_arg1': 10})
 
 # calculate from model
@@ -849,27 +849,27 @@ For source code, check this repository.
     ├── utils                 <- Etc functions( ex - npzee ).
     │
     ├── data                  <- data modules.
-    │   ├── providers           
-    │   └── repositories           
+    │   ├── providers
+    │   └── repositories
     │
     ├── instruments           <- financial instruments for pricing.
-    │   ├── swap           
-    │   ├── options           
-    │   ├── outputs           
+    │   ├── swap
+    │   ├── options
+    │   ├── outputs
     │   ├── pricing
     │   └── swap
     │
     ├── quotes                <- market data quotes.
     │
     ├── shock                 <- for risk statistics, pricing, etc.
-    │   └── traits            
-    │   
+    │   └── traits
+    │
     ├── termstructures        <- input parameters.
-    │   ├── volts           
+    │   ├── volts
     │   └── yieldcurve
     │
     └── xenarix               <- economic scenario generator.
-        ├── core           
+        ├── core
         └── pathcalc
 
 <br>
@@ -909,7 +909,7 @@ You can download Npzee Viewer in [WindowStore](https://www.microsoft.com/store/a
 
 # License
 
-MxDevTool(non-commercial version) is free for non-commercial purposes. 
+MxDevTool(non-commercial version) is free for non-commercial purposes.
 This is licensed under the terms of the [Montrix Non-Commercial License](https://www.montrix.co.kr/mxdevtool/license).
 
 Please contact us for the commercial purpose. <master@montrix.co.kr>

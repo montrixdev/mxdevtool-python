@@ -53,7 +53,7 @@ def test():
     print('irs pricing test...')
 
     yield_curve = yieldCurve()
-    
+
     family_name = 'irskrw_krccp'
 
     side = mx.VanillaSwap.Receiver
@@ -65,7 +65,7 @@ def test():
 
     swap = inst.makeSwap(side, nominal, maturityTenor, fixedRate, spread, settlementDate, yield_curve, family_name)
 
-    print(swap.iborIndex.familyName())
+    # print(swap.iborIndex.familyName())
 
     print('npv : ', swap.NPV())
     print('rho : ', swap.rho(mx.LegResultType.Net))
