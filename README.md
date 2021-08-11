@@ -1,9 +1,12 @@
 MxDevTool(Beta) : Financial Library
 ==========================
 
-![image](https://img.shields.io/badge/platform-Windows_64bit|Linux_64bit-red)
+![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.35.1-green.svg)
+![image](https://img.shields.io/badge/version-0.8.35.3-green.svg)
+
+![image](https://img.shields.io/badge/platform-macOS_64-red)
+![image](https://img.shields.io/badge/python-3.8|3.9-blue)
 
 MxDevTool is a Integrated Developing Tools for financial analysis.
 Now is Beta Release version. The Engine is developed by C++
@@ -802,6 +805,11 @@ For source code, check this repository.
 <br>
 
 # Release History
+
+## 0.8.35.3 (2021-8-12)
+- Library Dependencies are removed ( pandas, jinja2, matplot )
+- ZeroYieldCurve CurveType error bug fix
+- macOS 11 ( 64bit only ) Support
 
 ## 0.8.35.1 (2021-3-11)
 - User Calendar is added
