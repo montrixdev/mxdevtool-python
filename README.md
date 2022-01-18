@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.35.3-green.svg)
+![image](https://img.shields.io/badge/version-0.8.36.0-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9-blue)
@@ -250,6 +250,11 @@ hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startPeriod=mx.Period(6, mx.
 hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
 hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Period(3, mx.Months))
 
+r_t = 0.02
+hw1f.model_discountBond(0.0, 1.0, r_t)
+hw1f.model_spot(1.0, 2.0, r_t) # continuous compounding
+hw1f.model_forward(1.0, 2.0, 3.0, r_t) # continuous compounding
+hw1f.model_discount(1.0)
 ```
 
 ### Calcs
@@ -805,6 +810,10 @@ For source code, check this repository.
 <br>
 
 # Release History
+
+## 0.8.36.0 (2022-1-18)
+- Model Calculation Methods(spot, forward in shortrate model) are added
+- Build Process is Changed to Docker
 
 ## 0.8.35.3 (2021-8-12)
 - Library Dependencies are removed ( pandas, jinja2, matplot )

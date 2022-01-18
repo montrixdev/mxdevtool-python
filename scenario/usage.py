@@ -48,7 +48,7 @@ def test():
     # yieldCurve
     rfCurve = ts.ZeroYieldCurve(ref_date, tenors, rf_rates, interpolator1DType, extrapolator1DType)
     divCurve = ts.ZeroYieldCurve(ref_date, tenors, div_rates, interpolator1DType, extrapolator1DType)
-    
+
     utils.check_hashCode(rfCurve, divCurve)
 
     # variance termstructure
@@ -69,7 +69,7 @@ def test():
 
     alphaPara = xen.DeterministicParameter(['1y', '20y', '100y'], [0.1, 0.15, 0.15])
     sigmaPara = xen.DeterministicParameter(['20y', '100y'], [0.01, 0.015])
-    
+
     hw1f = xen.HullWhite1F('hw1f', fittingCurve=rfCurve, alphaPara=alphaPara, sigmaPara=sigmaPara)
     bk1f = xen.BK1F('bk1f', fittingCurve=rfCurve, alphaPara=alphaPara, sigmaPara=sigmaPara)
     cir1f = xen.CIR1F('cir1f', r0=0.02, alpha=0.1, longterm=0.042, sigma=0.03)
@@ -82,12 +82,19 @@ def test():
     hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
     hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturityTenor=mx.Period(3, mx.Months))
 
+    # model calculation
+    r_t = 0.02
+    hw1f.model_discountBond(0.0, 1.0, r_t)
+    hw1f.model_spot(1.0, 2.0, r_t) # continuous compounding
+    hw1f.model_forward(1.0, 2.0, 3.0, r_t) # continuous compounding
+    hw1f.model_discount(1.0)
+
     # calcs
     constantValue = xen.ConstantValue('constantValue', 15)
     constantArr = xen.ConstantArray('constantArr', [15,14,13])
 
     oper1 = gbmconst + gbm
-    oper2 = gbmconst - gbm 
+    oper2 = gbmconst - gbm
     oper3 = (gbmconst * gbm).withName('multiple_gbmconst_gbm')
     oper4 = gbmconst / gbm
 
@@ -107,8 +114,8 @@ def test():
     shiftRight1 = xen.Shift('shiftRight1', hw1f, shift=5)
     shiftRight2 = hw1f.shift('shiftRight2', shift=5, fill_value=0.0)
 
-    shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5) 
-    shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0) 
+    shiftLeft1 = xen.Shift('shiftLeft1', cir1f, shift=-5)
+    shiftLeft2 = cir1f.shift('shiftLeft2', shift=-5, fill_value=0.0)
 
     returns1 = xen.Returns('returns1', gbm, 'return')
     returns2 = gbm.returns('returns2', 'return')
@@ -147,7 +154,7 @@ def test():
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
     sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
-    
+
     # single model
     filename1='./single_model.npz'
     results1 = xen.generate1d(model=gbm, calcs=None, timegrid=timegrid1, rsg=pseudo_rsg, filename=filename1, isMomentMatching=False)
@@ -169,10 +176,10 @@ def test():
                   constantValue, constantArr, oper1, oper2, oper3, oper4, oper5, oper6, oper7, oper8, oper9, oper10, oper11, oper12,
                   linearOper1, linearOper2, shiftRight1, shiftRight2, shiftLeft1, shiftLeft2, returns1, returns2, logreturns1, logreturns2,
                   cumreturns1, cumreturns2, cumlogreturns1, cumlogreturns2, fixedRateBond ]
-    
+
     filename4='./multiple_model_with_calc_all.npz'
     corrMatrix2 = mx.IdentityMatrix(len(all_models))
-    
+
     corrMatrix2[1][0] = 0.5
     corrMatrix2[0][1] = 0.5
 
@@ -185,17 +192,17 @@ def test():
                    results.randomSubtype, results.randomType, results.seed, results.shape )
 
     ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
-    
+
     t_pos = 1
     scenCount = 15
-    
+
     # scenario path of selected scenCount
-    # ((100.0, 82.94953421561434, 110.87375162324332, 91.96798678908293, 70.29920544659505, ... ), 
-    #  (100.0, 96.98838977927142, 97.0643112022828, 91.19803393176569, 104.94407125936456, ... ), 
+    # ((100.0, 82.94953421561434, 110.87375162324332, 91.96798678908293, 70.29920544659505, ... ),
+    #  (100.0, 96.98838977927142, 97.0643112022828, 91.19803393176569, 104.94407125936456, ... ),
     #  ...
     #  (200.0, 179.93792399488575, 207.93806282552612, 183.16602072084862, ... ),
     #  (9546.93761943355, 9969.778029330208, 10758.449206155927, 11107.968356394866, ... ))
-    multipath = results[scenCount] 
+    multipath = results[scenCount]
     multipath_arr = ndarray[scenCount]
 
     # t_pos data
@@ -221,11 +228,11 @@ def test():
 
     for pv in all_pv_list:
         analyticPath = pv.analyticPath(timegrid2)
-        
+
     input_arr = [0.01, 0.02, 0.03, 0.04, 0.05]
     input_arr2d = [[0.01, 0.02, 0.03, 0.04, 0.05],
                    [0.06, 0.07, 0.08, 0.09, 0.1]]
-    
+
     for pv in all_calcs:
         if pv.sourceNum == 1:
             calculatePath = pv.calculatePath(input_arr, timegrid1)
@@ -233,8 +240,8 @@ def test():
             calculatePath = pv.calculatePath(input_arr2d, timegrid1)
         else:
             pass
-    
-    # repository 
+
+    # repository
     repo_path = './xenrepo'
     repo_config = { 'location': repo_path }
     repo = mx_dr.FolderRepository(repo_config)
@@ -245,7 +252,7 @@ def test():
 
     filename5 = 'scen_all.npz'
     scen_all = xen.Scenario(models=all_models, calcs=all_calcs, corr=corrMatrix2, timegrid=timegrid4, rsg=sobol_rsg, filename=filename5, isMomentMatching=False)
-    
+
     filename6 = 'scen_multiple.npz'
     scen_multiple = xen.Scenario(models=models, calcs=[], corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename6, isMomentMatching=False)
 
@@ -253,7 +260,7 @@ def test():
 
     # scenario - save, load, list
     name1 = 'name1'
-    xm.save_xen(name1, scen_all) # 
+    xm.save_xen(name1, scen_all) #
     scen_name1 = xm.load_xen(name=name1)
 
     scen_name1.filename = './reloaded_scenfile.npz'
@@ -267,7 +274,7 @@ def test():
 
     # generate in result directory
     xm.generate_xen(scenList[0])
-    
+
     # scenario template builder using market data
     sb = xen.ScenarioBuilder()
 
@@ -293,7 +300,7 @@ def test():
 
     sb.addCalc(xen.ConstantValue.__name__, 'constantValue', v=15)
     sb.addCalc(xen.ConstantArray.__name__, 'constantArr', arr=[15,14,13])
-    
+
     sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pc1='gbmconst', pc2='gbm')
     sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pc1='gbmconst', pc2='gbm')
     sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pc1='gbmconst', pc2='gbm')
@@ -368,7 +375,7 @@ def test():
 
     # shock definition
     quote1 = mx_q.SimpleQuote('quote1', 100)
-    
+
     qst_add = mx_s.QuoteShockTrait(name='add_up1', value=10, operand='add')
     qst_mul = mx_s.QuoteShockTrait('mul_up1', 1.1, 'mul')
     qst_ass = mx_s.QuoteShockTrait('assign_up1', 0.03, 'assign')
@@ -411,9 +418,9 @@ def test():
     shocked_mrk1 = mx_s.build_shockedMrk(shock1, mrk)
     shock2 = shock1.clone(name='shock2')
     shocked_mrk2 = mx_s.build_shockedMrk(shock2, mrk)
-    
+
     utils.check_hashCode(shock1, shock2, shocked_mrk1, shocked_mrk2)
-    
+
     shockedScen_list = mx_s.build_shockedScen([shock1, shock2], sb, mrk)
 
     shm = mx_s.ShockScenarioModel('shm1', basescen=scen, s_up=shockedScen_list[0], s_down=shockedScen_list[1])
@@ -425,14 +432,14 @@ def test():
 
     # compare ?
     csr = xen.CompositeScenarioResults(shm.shocked_scen_res_d, basescen_name, gbmconst='s_down')
-    
+
     csr_arr = csr.toNumpyArr()
     base_arr = scen.getResults().toNumpyArr()
 
     assert base_arr[0][0][0] + qst_add.value == csr_arr[0][0][0] # replaced(gbmconst)
     assert base_arr[0][1][0] == csr_arr[0][1][0] # not replaced(gbm)
 
-    # shock manager - save, load, list 
+    # shock manager - save, load, list
     # extensions : shock(.shk), shocktrait(.sht), shockscenariomodel(.shm)
     sfm = repo.shock_manager
 
@@ -440,7 +447,7 @@ def test():
     sht_name = 'shocktraits'
     sfm.save_shts(sht_name, *shocktrait_list)
     reloaded_sht_d = sfm.load_shts(sht_name)
-    
+
     for s in shocktrait_list:
         utils.check_hashCode(s, reloaded_sht_d[s.name])
         utils.compare_hashCode(s, reloaded_sht_d[s.name])
@@ -449,7 +456,7 @@ def test():
     shk_name = 'shocks'
     sfm.save_shks(shk_name, shock1, shock2)
     reloaded_shk_d = sfm.load_shks(shk_name)
-    
+
     for s in [shock1, shock2]:
         utils.check_hashCode(s, reloaded_shk_d[s.name])
         utils.compare_hashCode(s, reloaded_shk_d[s.name])
@@ -474,10 +481,10 @@ def test():
     except: print('fail to check bloomberg')
 
     # instruments pricing
-    
+
     # this is built-in instruments
     # option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
-    
+
     # this is inherit instrument for user output
     class EuropeanOptionForUserOutput(mx_i.EuropeanOption):
         def userfunc_test(self, scen_data_d, calc_kwargs):
@@ -495,8 +502,8 @@ def test():
     test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
 
     # calculate from scenario
-    results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver', 
-                                    path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'}, 
+    results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver',
+                                    path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'},
                                     calc_kwargs={'calc_arg1': 10})
 
     # calculate from model
@@ -504,7 +511,7 @@ def test():
     gbmconst_basescen = basescen.getModel('gbmconst')
     arg_d = { 'x0': gbmconst_basescen._x0, 'rf': gbmconst_basescen._rf, 'div': gbmconst_basescen._div, 'vol': gbmconst_basescen._vol }
     assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParams_Model(gbmconst_basescen).NPV()
-    
+
     # calendar holiday
     mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
 
