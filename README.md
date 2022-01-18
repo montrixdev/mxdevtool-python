@@ -250,11 +250,11 @@ hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startPeriod=mx.Period(6, mx.
 hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
 hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Period(3, mx.Months))
 
-r_t = 0.02
+r_t = 0.02 # short rate
 hw1f.model_discountBond(0.0, 1.0, r_t)
 hw1f.model_spot(1.0, 2.0, r_t) # continuous compounding
 hw1f.model_forward(1.0, 2.0, 3.0, r_t) # continuous compounding
-hw1f.model_discount(1.0)
+hw1f.model_discount(1.0) #
 ```
 
 ### Calcs
