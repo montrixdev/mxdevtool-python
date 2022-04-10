@@ -154,10 +154,13 @@ def test():
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
     sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
+    arr = np.random.random((1000, 365 * 3)) # timegrid1
+    np.save('./external_rsg.npy', arr)
+    external_rsg = xen.RsgExternal(sampleNum=1000, dimension=365 * 3, filename='./external_rsg.npy')
 
     # single model
     filename1='./single_model.npz'
-    results1 = xen.generate1d(model=gbm, calcs=None, timegrid=timegrid1, rsg=pseudo_rsg, filename=filename1, isMomentMatching=False)
+    results1 = xen.generate1d(model=gbm, calcs=None, timegrid=timegrid1, rsg=external_rsg, filename=filename1, isMomentMatching=False)
 
     # multiple model
     filename2='./multiple_model.npz'

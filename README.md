@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.36.0-green.svg)
+![image](https://img.shields.io/badge/version-0.8.37.1-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9-blue)
@@ -810,6 +810,11 @@ For source code, check this repository.
 <br>
 
 # Release History
+
+## 0.8.37.1 (2022-4-10)
+- ExternalRsg(using numpy file) is added for external random number
+- Output file contents is updated(correlation, random) - v1.1.0
+- Correlation matrix bug is fixed(cholesky decomposition)
 
 ## 0.8.36.0 (2022-1-18)
 - Model Calculation Methods(spot, forward in shortrate model) are added
