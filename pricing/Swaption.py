@@ -58,7 +58,7 @@ def test():
     swaption = mx_i.makeSwaption(yieldCurve=yield_curve)
 
     print('npv : ', swaption.NPV())
-    print('blackvol : ', swaption.impliedVolatility(swaption.NPV() * 0.9 ))
+    print('blackvol : ', swaption.impliedVolatility(swaption.NPV() * 0.9, yield_curve, 0.3))
 
 if __name__ == "__main__":
     test()

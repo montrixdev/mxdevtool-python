@@ -2,11 +2,11 @@ MxDevTool(Beta) : Financial Library
 ==========================
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
-![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9-blue)
-![image](https://img.shields.io/badge/version-0.8.37.1-green.svg)
+![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10|3.11-blue)
+![image](https://img.shields.io/badge/version-0.8.38.0-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
-![image](https://img.shields.io/badge/python-3.8|3.9-blue)
+![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
 
 MxDevTool is a Integrated Developing Tools for financial analysis.
 Now is Beta Release version. The Engine is developed by C++
@@ -345,8 +345,25 @@ timeGrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endo
 
 ## Random Sequence Generator
 ```python
-pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
-sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=0, skip=0, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
+pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
+pseudo_rsg2 = xen.RsgPseudo(sampleNum=1000, dimension=365, randomTransformType='uniform')
+
+halton_rsg = xen.RsgHalton(sampleNum=1000, dimension=365)
+faure_rsg = xen.RsgFaure(sampleNum=1000, dimension=365)
+
+sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=2048, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
+sobol_rsg2 = xen.RsgSobol(sampleNum=1000, dimension=365, skip=2048)
+
+latinhs_rsg = xen.RsgLatinHs(pseudo_rsg2)
+
+arr = np.random.random((1000, 365 * 3)) # timegrid1, rand is not fixed
+np.save('./external_rsg.npy', arr)
+external_rsg = xen.RsgExternal(sampleNum=1000, dimension=365 * 3, filename='./external_rsg.npy')
+
+rsg_list = [pseudo_rsg, pseudo_rsg2, halton_rsg, faure_rsg, sobol_rsg, sobol_rsg2, latinhs_rsg, external_rsg]
+# for rsg in rsg_list:
+#     print(rsg.type(),  rsg.nextSequence()[0:3], rsg.nextSequence()[0:3])
+    
 ```
 
 ## Scenario Generate
@@ -393,32 +410,34 @@ resultsInfo = ( results.genInfo, results.refDate, results.maxDate, results.maxTi
 
 ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
 
-t_pos = 1
+t_pos = 264
 scenCount = 15
 
-# scenario path of selected scenCount
-# ((100.0, 82.94953421561434, 110.87375162324332, 91.96798678908293, 70.29920544659505, ... ),
-#  (100.0, 96.98838977927142, 97.0643112022828, 91.19803393176569, 104.94407125936456, ... ),
-#  ...
-#  (200.0, 179.93792399488575, 207.93806282552612, 183.16602072084862, ... ),
-#  (9546.93761943355, 9969.778029330208, 10758.449206155927, 11107.968356394866, ... ))
+precalculated_tpos_15_264 = [617.9412514170386, 486.16360609386476, 257.91188339511893, 0.008636462100567083, 0.041740761012241466, 0.017748505256947305, 0.07747329523241774, 0.03993668004547873, 0.00886112680520279, 0.011046137001885281, 0.9707768360048887, 0.9977969060281185, 15.0, 0.0, 1104.1048575109035, -131.77764532317389, 300420.54714306304, 0.7867472918809246, 627.9412514170386, -607.9412514170386, 679.7353765587426, 0.0017801044961434816, 627.9412514170386, 607.9412514170386, 679.7353765587426, 561.7647740154896, 689.7353765587426, 689.7353765587426, 0.010504541340189934, 0.010504541340189934, 0.022027700532335222, 0.022027700532335222, -0.01896096586180629, -0.01896096586180629, -0.031324320207885586, -0.031324320207885586, -0.3859240871544787, -0.3859240871544787, 0.14629049402642338, 0.14629049402642338, 8034.953047634017]
+
+calculated_tpos_264 = results.tPosSlice(t_pos, scenCount)
+
+for i, v in enumerate(zip(calculated_tpos_264, precalculated_tpos_15_264)):
+    diff = v[0] - v[1]
+    if diff != 0.0: print(results.genInfo[i][1], diff)
+
 multipath = results[scenCount]
 multipath_arr = ndarray[scenCount]
 
 # t_pos data
-multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) # (82.94953421561434, 96.98838977927142, 0.015097688448292656, 0.02390612251701627, ... )
+multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) # (617.9412514170386, 486.16360609386476, 257.91188339511893, ...)
 multipath_t_pos_arr = ndarray[scenCount,:,t_pos]
 
 multipath_all_t_pos = results.tPosSlice(t_pos=t_pos) # all t_pos data
 
 # t_pos data of using date
 t_date = ref_date + 10
-multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) # (99.5327905069975, 99.91747715856324, 0.015099936660211026, 0.020107033880707947, ... )
+multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) # (398.5270922971255, 418.0131595105432, 424.67199724665664, 0.014226265796137581, ... )
 multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 
 # t_pos data of using time
 t_time = 1.32
-multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (91.88967340028992, 97.01269656928498, 0.018200574048792405, 0.02436896520516243, ... )
+multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (381.7433430556487, 434.9766465395624, 368.76856978958483, -0.0022718317886738877, ... )
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 ```
 
@@ -514,6 +533,7 @@ sb.corr[2][0] = 'kospi2_ni225_corr'
 
 sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pc='hw1f', maturityTenor='3m', compounding=mx.Compounded)
 sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pc='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m_2', ir_pc='hw1f', startTenor=0.5, maturityTenor=0.25, compounding=mx.Compounded)
 sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pc='hw1f')
 sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pc='hw1f', maturityTenor=mx.Period(3, mx.Months))
 
@@ -810,6 +830,17 @@ For source code, check this repository.
 <br>
 
 # Release History
+
+## 0.8.38.0 (2022-11-07)
+- Rsg classes are redesigned
+- Latin Hypercube sampling is added
+- Random number consuming method is changed to timeside first
+- Model Generation performance is improved
+- BondReturn, Libor, SwapRate associated to shortrate(affinemodel) model is added
+- Some clone method is added for curve(yield, vol) shock and model copy
+- Structectured payoffs for pricing are testing(alpha version)
+- Linux aarch64 platform Support is started
+- Python 3.10, 3.11 version Support is started
 
 ## 0.8.37.1 (2022-4-10)
 - ExternalRsg(using numpy file) is added for external random number
