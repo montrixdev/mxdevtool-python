@@ -9,8 +9,7 @@ MxDevTool(Beta) : Financial Library
 ![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
 
 MxDevTool is a Integrated Developing Tools for financial analysis.
-Now is Beta Release version. The Engine is developed by C++
-and based on QuantLib.
+Now is Beta Release version. The Engine is developed by C++.
 
 Xenarix(Economic Scenario Generator) is moved into submodule of MxDevTool.
 
@@ -126,7 +125,7 @@ if __name__ == "__main__":
 Import MxDevTool Library :
 
 ```python
-import os
+import os, time, platform
 import numpy as np
 import mxdevtool as mx
 import mxdevtool.shock as mx_s
@@ -135,6 +134,8 @@ import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
+import mxdevtool.instruments as mx_i
+import mxdevtool.instruments.outputs as mx_io
 import mxdevtool.utils as utils
 ```
 
