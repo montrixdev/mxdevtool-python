@@ -23,7 +23,7 @@ def test():
 
 	# corrMatrix = mx.Matrix([[1.0, 0.0],[0.0, 1.0]])
 	corrMatrix = mx.IdentityMatrix(len(models))
-	timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
+	timeGrid = mx.TimeDateGrid_Equal(ref_date, 3, 365)
 
     # random 
 	rsg = xen.Rsg(sampleNum=5000)

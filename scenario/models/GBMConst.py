@@ -24,7 +24,7 @@ def test():
 	print('gbmconst test...', filename)
 	
 	m = model()
-	timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
+	timeGrid = mx.TimeDateGrid_Equal(ref_date, 3, 365)
 
 	# random 
 	rsg = xen.Rsg(sampleNum=5000)
