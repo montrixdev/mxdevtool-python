@@ -3,13 +3,13 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10|3.11-blue)
-![image](https://img.shields.io/badge/version-0.8.38.0-green.svg)
+![image](https://img.shields.io/badge/version-1.0.29.0-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
 
 MxDevTool is a Integrated Developing Tools for financial analysis.
-Now is Beta Release version. The Engine is developed by C++.
+Now is Beta Release version. The Project is built on top of QuantLib-Python.
 
 Xenarix(Economic Scenario Generator) is moved into submodule of MxDevTool.
 
@@ -26,6 +26,12 @@ Functionalty :
 -   InterestRateSwap Pricing
 -   Option Pricing
 -   Fast Calculation
+
+<br>
+
+# Version Rule
+
+Version syntex is {Major}-{Miner}-{QuantLib_Version}-{Patch}
 
 <br>
 
@@ -109,7 +115,7 @@ def test():
     print('hw1f test...', filename)
 
     m = model()
-    timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
+    timeGrid = mx.TimeDateGrid_Equal(ref_date, 3, 365)
     rsg = xen.Rsg(sampleNum=5000)
     results = xen.generate1d(m, None, timeGrid, rsg, filename, False)
 
@@ -134,8 +140,6 @@ import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
-import mxdevtool.instruments as mx_i
-import mxdevtool.instruments.outputs as mx_io
 import mxdevtool.utils as utils
 ```
 
@@ -326,22 +330,23 @@ fixedRateBond = xen.FixedRateBond('fixedRateBond', vasicek1f, notional=10000, fi
 
 ## TimeGrid
 ```python
-timegrid1  = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
-timegrid2  = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-timeGrid3  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='day')
-timeGrid4  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='week')
-timeGrid5  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
-timeGrid6  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
-timeGrid7  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
-timeGrid8  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
-timeGrid9  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
-timeGrid10 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
-timeGrid11 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
-timeGrid12 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
-timeGrid13 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
-timeGrid14 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
-timeGrid15 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
-timeGrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
+timegrid1  = mx.TimeDateGrid_Equal(refDate=ref_date, maxYear=3, nPerYear=365)
+timegrid2  = mx.TimeDateGrid_Times(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+timegrid3  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='day')
+timegrid4  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='week')
+timegrid5  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
+timegrid6  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
+timegrid7  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
+timegrid8  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
+timegrid9  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
+timegrid10 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
+timegrid11 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
+timegrid12 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
+timegrid13 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
+timegrid14 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
+timegrid15 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
+timegrid16 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
+
 ```
 
 ## Random Sequence Generator
@@ -350,7 +355,6 @@ pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatc
 pseudo_rsg2 = xen.RsgPseudo(sampleNum=1000, dimension=365, randomTransformType='uniform')
 
 halton_rsg = xen.RsgHalton(sampleNum=1000, dimension=365)
-faure_rsg = xen.RsgFaure(sampleNum=1000, dimension=365)
 
 sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=2048, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
 sobol_rsg2 = xen.RsgSobol(sampleNum=1000, dimension=365, skip=2048)
@@ -414,31 +418,25 @@ ndarray = results.toNumpyArr() # pre load all scenario data to ndarray
 t_pos = 264
 scenCount = 15
 
-precalculated_tpos_15_264 = [617.9412514170386, 486.16360609386476, 257.91188339511893, 0.008636462100567083, 0.041740761012241466, 0.017748505256947305, 0.07747329523241774, 0.03993668004547873, 0.00886112680520279, 0.011046137001885281, 0.9707768360048887, 0.9977969060281185, 15.0, 0.0, 1104.1048575109035, -131.77764532317389, 300420.54714306304, 0.7867472918809246, 627.9412514170386, -607.9412514170386, 679.7353765587426, 0.0017801044961434816, 627.9412514170386, 607.9412514170386, 679.7353765587426, 561.7647740154896, 689.7353765587426, 689.7353765587426, 0.010504541340189934, 0.010504541340189934, 0.022027700532335222, 0.022027700532335222, -0.01896096586180629, -0.01896096586180629, -0.031324320207885586, -0.031324320207885586, -0.3859240871544787, -0.3859240871544787, 0.14629049402642338, 0.14629049402642338, 8034.953047634017]
-
 calculated_tpos_264 = results.tPosSlice(t_pos, scenCount)
-
-for i, v in enumerate(zip(calculated_tpos_264, precalculated_tpos_15_264)):
-    diff = v[0] - v[1]
-    if diff != 0.0: print(results.genInfo[i][1], diff)
 
 multipath = results[scenCount]
 multipath_arr = ndarray[scenCount]
 
 # t_pos data
-multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) # (617.9412514170386, 486.16360609386476, 257.91188339511893, ...)
+multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) 
 multipath_t_pos_arr = ndarray[scenCount,:,t_pos]
 
 multipath_all_t_pos = results.tPosSlice(t_pos=t_pos) # all t_pos data
 
 # t_pos data of using date
 t_date = ref_date + 10
-multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) # (398.5270922971255, 418.0131595105432, 424.67199724665664, 0.014226265796137581, ... )
+multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) 
 multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 
 # t_pos data of using time
 t_time = 1.32
-multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (381.7433430556487, 434.9766465395624, 368.76856978958483, -0.0022718317886738877, ... )
+multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) 
 multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 ```
 
@@ -532,42 +530,42 @@ sb.corr[0][1] = 0.5
 sb.corr[0][2] = 'kospi2_ni225_corr'
 sb.corr[2][0] = 'kospi2_ni225_corr'
 
-sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pc='hw1f', maturityTenor='3m', compounding=mx.Compounded)
-sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pc='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
-sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m_2', ir_pc='hw1f', startTenor=0.5, maturityTenor=0.25, compounding=mx.Compounded)
-sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pc='hw1f')
-sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pc='hw1f', maturityTenor=mx.Period(3, mx.Months))
+sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pv='hw1f', maturityTenor='3m', compounding=mx.Compounded)
+sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pv='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m_2', ir_pv='hw1f', startTenor=0.5, maturityTenor=0.25, compounding=mx.Compounded)
+sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pv='hw1f')
+sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pv='hw1f', maturityTenor=mx.Period(3, mx.Months))
 
 sb.addCalc(xen.ConstantValue.__name__, 'constantValue', v=15)
 sb.addCalc(xen.ConstantArray.__name__, 'constantArr', arr=[15,14,13])
 
-sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pc1='gbmconst', pc2='gbm')
-sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pc1='gbmconst', pc2='gbm')
-sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pc1='gbmconst', pc2='gbm')
-sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2='gbm')
+sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pv1='gbmconst', pv2='gbm')
+sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pv1='gbmconst', pv2='gbm')
+sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pv1='gbmconst', pv2='gbm')
+sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pv1='gbmconst', pv2='gbm')
 
-sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1='gbmconst', pc2=10)
-sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1='gbmconst', pc2=10)
-sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1='gbmconst', pc2=1.1)
-sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2=1.1)
+sb.addCalc(xen.AdditionConstOper.__name__, 'addOper2', pv1='gbmconst', v=10)
+sb.addCalc(xen.SubtractionConstOper.__name__, 'subtOper2', pv1='gbmconst', v=10)
+sb.addCalc(xen.MultiplicationConstOper.__name__, 'mulOper2', pv1='gbmconst', v=1.1)
+sb.addCalc(xen.DivisionConstOper.__name__, 'divOper1', pv1='gbmconst', v=1.1)
 
-sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1=10, pc2='gbmconst')
-sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1=10, pc2='gbmconst')
-sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1=1.1, pc2='gbmconst')
-sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1=1.1, pc2='gbmconst')
+sb.addCalc(xen.AdditionConstReverseOper.__name__, 'addOper2', v=10, pv2='gbmconst')
+sb.addCalc(xen.SubtractionConstReverseOper.__name__, 'subtOper2', v=10, pv2='gbmconst')
+sb.addCalc(xen.MultiplicationConstReverseOper.__name__, 'mulOper2', v=1.1, pv2='gbmconst')
+sb.addCalc(xen.DivisionConstReverseOper.__name__, 'divOper1', v=1.1, pv2='gbmconst')
 
-sb.addCalc(xen.LinearOper.__name__, 'linearOper1', pc='gbm', multiple=1.1, spread=10)
-sb.addCalc(xen.Shift.__name__, 'shiftRight1', pc='hw1f', shift=5, fill_value=0.0)
-sb.addCalc(xen.Shift.__name__, 'shiftLeft1', pc='cir1f', shift=-5, fill_value=0.0)
+sb.addCalc(xen.LinearOper.__name__, 'linearOper1', pv='gbm', multiple=1.1, spread=10)
+sb.addCalc(xen.Shift.__name__, 'shiftRight1', pv='hw1f', shift=5, fill_value=0.0)
+sb.addCalc(xen.Shift.__name__, 'shiftLeft1', pv='cir1f', shift=-5, fill_value=0.0)
 
-sb.addCalc(xen.Returns.__name__, 'returns1', pc='gbm', return_type='return')
-sb.addCalc(xen.Returns.__name__, 'logreturns1', pc='gbmconst', return_type='logreturn')
-sb.addCalc(xen.Returns.__name__, 'cumreturns1', pc='heston', return_type='cumreturn')
-sb.addCalc(xen.Returns.__name__, 'cumlogreturns1', pc='gbm', return_type='cumlogreturn')
+sb.addCalc(xen.Returns.__name__, 'returns1', pv='gbm', return_type='return')
+sb.addCalc(xen.Returns.__name__, 'logreturns1', pv='gbmconst', return_type='logreturn')
+sb.addCalc(xen.Returns.__name__, 'cumreturns1', pv='heston', return_type='cumreturn')
+sb.addCalc(xen.Returns.__name__, 'cumlogreturns1', pv='gbm', return_type='cumlogreturn')
 
-sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pc='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
+sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pv='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 
-sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2='gbm')
+sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pv1='gbmconst', pv2='gbm')
 sb.removeCalc('addOper_for_remove')
 
 # scenarioBuilder - save, load, list
@@ -578,7 +576,7 @@ sb.setRsgCls(pseudo_rsg)
 
 xm.save_xnb('sb2', sb=sb)
 
-sb.setTimeGrid(mx.TimeGrid.__name__, refDate=ref_date, maxYear=10, frequency_type='endofmonth')
+sb.setTimeGrid(mx.TimeDateGrid_Custom.__name__, refDate=ref_date, maxYear=10, frequency_type='endofmonth')
 sb.setRsg(xen.Rsg.__name__, sampleNum=1000)
 
 xm.save_xnb('sb3', sb=sb)
@@ -729,43 +727,10 @@ try: mx_dp.check_bloomberg()
 except: print('fail to check bloomberg')
 ```
 
-## Instruments Pricing
-```python
-# this is built-in instruments
-# option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
-
-# this is inherit instrument for user output
-class EuropeanOptionForUserOutput(mx_i.EuropeanOption):
-    def userfunc_test(self, scen_data_d, calc_kwargs):
-        v = calc_kwargs['calc_arg1']
-        return v + 99
-
-option = EuropeanOptionForUserOutput(option_type='c', strike=400, maturityDate=ref_date + 365)
-
-# outputs
-delta = mx_io.Delta(up='s_up', down='s_down')
-gamma = mx_io.Gamma(up='s_up', center='basescen', down='s_down')
-
-npv = mx_io.Npv(scen='basescen', currency='krw')
-discount_cf = mx_io.CashFlow(scen='basescen', currency='krw', discount=None)
-test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
-
-# calculate from scenario
-results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver',
-                                path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'},
-                                calc_kwargs={'calc_arg1': 10})
-
-# calculate from model
-basescen = shm.getScenario('basescen')
-gbmconst_basescen = basescen.getModel('gbmconst')
-arg_d = { 'x0': gbmconst_basescen._x0, 'rf': gbmconst_basescen._rf, 'div': gbmconst_basescen._div, 'vol': gbmconst_basescen._vol }
-assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParams_Model(gbmconst_basescen).NPV()
-```
-
 ## Settings
 ```python
 # calendar holiday
-mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
+mydates = [mx.Date(11, 10, 2022), mx.Date(12, 10, 2022), mx.Date(13, 10, 2022), mx.Date(11, 11, 2022)]
 
 kr_cal = mx.SouthKorea()
 user_cal = mx.UserCalendar('testcal')
@@ -831,6 +796,15 @@ For source code, check this repository.
 <br>
 
 # Release History
+
+## 1.0.29.0 (2023-01-28)
+- QuantLib dependency is redegined
+- Version Syntex is changed
+- Instruments pricings are removed for reconstruction
+- Faure Random is removed
+- TimeGrid is replaced by TimeDateGrid_Custom (because of QuantLib.TimeGrid)
+- Some arguments are changed (ex: pc -> pv in ProcessValue Operator) 
+- 'test' branch is added for CI/CD Testing
 
 ## 0.8.38.0 (2022-11-07)
 - Rsg classes are redesigned
