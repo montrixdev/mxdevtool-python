@@ -13,6 +13,7 @@ import mxdevtool.utils as utils
 enviroment = '{0}-{1}'.format(platform.system(), platform.machine())
 
 def test():
+    print('usage test...')
     ref_date = mx.Date.todaysDate()
     null_calendar = mx.NullCalendar()
 

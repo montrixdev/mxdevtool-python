@@ -4,6 +4,8 @@ import numpy as np
 import math
 
 def timegrid_test():
+    print('timegrid test...')
+
     ref_date = mx.Date.todaysDate()
 
     maxYear = 10
@@ -29,8 +31,8 @@ def timegrid_test():
     timegrids = [ timegrid1, timegrid2, timegrid3, timegrid4, timegrid5, timegrid6, timegrid7, timegrid8, timegrid9, timegrid10, 
                   timegrid11, timegrid12, timegrid13, timegrid14, timegrid15, timegrid16]
 
-    for tg, i in zip(timegrids, range(len(timegrids))):
-        print('timeGrid{0} :'.format(i+1), tg.dates()[:10]) 
+    # for tg, i in zip(timegrids, range(len(timegrids))):
+    #     print('timeGrid{0} :'.format(i+1), tg.dates()[:10]) 
 
 
 def correlation_test():
@@ -94,10 +96,9 @@ def correlation_test():
         _shift_row = shift_row[1:] # except date
         mrk_data_return.append([ math.log(v[1]/v[0]) for v in zip(_row, _shift_row) ])
 
-    corr_arr = np.corrcoef(np.transpose(mrk_data_return))
+    corr_arr = np.corrcoef(np.transpose(mrk_data_return))    
+    corr = mx.Matrix(corr_arr.tolist())
     
-    corr = mx.Matrix(corr_arr)
-    print(corr)
 
 if __name__ == "__main__":
     timegrid_test()
