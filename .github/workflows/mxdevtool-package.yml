@@ -21,7 +21,6 @@ jobs:
           - os: "macos-11"
             python-version: ["3.8", "3.9", "3.10", "3.11"]
 
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -32,7 +31,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 numpy mxdevtool
+        python -m pip install flake8 numpy
+        python -m pip install --index-url https://test.pypi.org/simple mxdevtool -U
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -46,5 +46,5 @@ jobs:
       run: pip show mxdevtool
     - name: Test
       run: |
-        python run_test_usage.py
-        python run_test_random.py
+        python run_test_usage.py || exit 1
+        python run_test_random.py || exit 1
