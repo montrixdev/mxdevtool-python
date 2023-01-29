@@ -47,5 +47,8 @@ jobs:
       run: pip show mxdevtool
     - name: Test
       run: |
+        python ./quantlib/test/QuantLibTestSuite.py || exit 1
         python run_test_usage.py || exit 1
         python run_test_random.py || exit 1
+        python run_test_etc.py || exit 1
+        python run_test_scenario.py || exit 1
