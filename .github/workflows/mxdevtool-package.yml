@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "windows-2019", "ubuntu-22.04", "ubuntu-20.04", "macos-11", "macos-12"]
+        os: ["windows-2022", "windows-2019", "ubuntu-22.04", "ubuntu-20.04", "self-hosted"]
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
         exclude:
           - os: "ubuntu-22.04"
