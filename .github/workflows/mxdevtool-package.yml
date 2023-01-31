@@ -29,8 +29,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: "x64"
-      env:
-        AGENT_TOOLSDIRECTORY: /opt/hostedtoolcache        
+   
 
     - name: Install dependencies
       run: |
