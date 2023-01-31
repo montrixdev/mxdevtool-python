@@ -15,11 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "windows-2019", "ubuntu-22.04", "ubuntu-20.04", "macOS"]
+        os: ["macOS"]
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
         exclude:
-          - os: "ubuntu-22.04"
-            python-version: "3.6"
           - os: "macOS"
             python-version: "3.6"
           - os: "macOS"
@@ -30,6 +28,9 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+        architecture: "x64"
+      env:
+        AGENT_TOOLSDIRECTORY: /opt/hostedtoolcache        
 
     - name: Install dependencies
       run: |
