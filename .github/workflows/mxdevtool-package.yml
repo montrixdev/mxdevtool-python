@@ -10,7 +10,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  Python Test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
