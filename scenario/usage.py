@@ -7,14 +7,13 @@ import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
-import mxdevtool.instruments as mx_i
-import mxdevtool.instruments.outputs as mx_io
 import mxdevtool.utils as utils
 
 
 enviroment = '{0}-{1}'.format(platform.system(), platform.machine())
 
 def test():
+    print('usage test...')
     ref_date = mx.Date.todaysDate()
     null_calendar = mx.NullCalendar()
 
@@ -137,29 +136,28 @@ def test():
     # timegrid
     maxYear = 10
 
-    timegrid1  = mx.TimeEqualGrid(refDate=ref_date, maxYear=3, nPerYear=365)
-    timegrid2  = mx.TimeArrayGrid(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-    timegrid3  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='day')
-    timegrid4  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='week')
-    timegrid5  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
-    timegrid6  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
-    timegrid7  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
-    timegrid8  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
-    timegrid9  = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
-    timegrid10 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
-    timegrid11 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
-    timegrid12 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
-    timegrid13 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
-    timegrid14 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
-    timegrid15 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
-    timegrid16 = mx.TimeGrid(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
+    timegrid1  = mx.TimeDateGrid_Equal(refDate=ref_date, maxYear=3, nPerYear=365)
+    timegrid2  = mx.TimeDateGrid_Times(refDate=ref_date, times=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+    timegrid3  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='day')
+    timegrid4  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='week')
+    timegrid5  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='month', frequency_day=10)
+    timegrid6  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='quarter', frequency_day=10)
+    timegrid7  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='semiannual', frequency_day=10)
+    timegrid8  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='annual', frequency_month=8, frequency_day=10)
+    timegrid9  = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofmonth')
+    timegrid10 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofquarter')
+    timegrid11 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofsemiannual')
+    timegrid12 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='firstofannual')
+    timegrid13 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofmonth')
+    timegrid14 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofquarter')
+    timegrid15 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofsemiannual')
+    timegrid16 = mx.TimeDateGrid_Custom(refDate=ref_date, maxYear=maxYear, frequency_type='endofannual')
 
     # random
     pseudo_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=0, isMomentMatching=False, randomType='pseudo', subType='mersennetwister', randomTransformType='boxmullernormal')
     pseudo_rsg2 = xen.RsgPseudo(sampleNum=1000, dimension=365, randomTransformType='uniform')
 
     halton_rsg = xen.RsgHalton(sampleNum=1000, dimension=365)
-    faure_rsg = xen.RsgFaure(sampleNum=1000, dimension=365)
 
     sobol_rsg = xen.Rsg(sampleNum=1000, dimension=365, seed=1, skip=2048, isMomentMatching=False, randomType='sobol', subType='joekuod7', randomTransformType='invnormal')
     sobol_rsg2 = xen.RsgSobol(sampleNum=1000, dimension=365, skip=2048)
@@ -170,7 +168,7 @@ def test():
     np.save('./external_rsg.npy', arr)
     external_rsg = xen.RsgExternal(sampleNum=1000, dimension=365 * 3, filename='./external_rsg.npy')
 
-    rsg_list = [pseudo_rsg, pseudo_rsg2, halton_rsg, faure_rsg, sobol_rsg, sobol_rsg2, latinhs_rsg, external_rsg]
+    rsg_list = [pseudo_rsg, pseudo_rsg2, halton_rsg, sobol_rsg, sobol_rsg2, latinhs_rsg, external_rsg]
     # for rsg in rsg_list:
     #     print(rsg.type(),  rsg.nextSequence()[0:3], rsg.nextSequence()[0:3])
     
@@ -215,40 +213,25 @@ def test():
     t_pos = 264
     scenCount = 15
 
-    precalculated_tpos_15_264 = []
-
-    if enviroment == 'Windows-AMD64':
-        precalculated_tpos_15_264 = [617.9524151122586, 486.1324942886278, 257.86113224359457, 0.00863805143945109, 0.04174084373279414, 0.01774797817939525, 0.07746550423520306, 0.03993400910000309, 0.008862700536786061, 0.011047337489246356, 0.9707690335980336, 0.9977965169103966, 15.0, 0.0, 1104.0849094008863, -131.81992082363075, 300406.7489102038, 0.7866827321976174, 627.9524151122586, -607.9524151122586, 679.7476566234844, 0.001780072337447167, 627.9524151122586, 607.9524151122586, 679.7476566234844, 561.7749228293259, 689.7476566234844, 689.7476566234844, 0.010506153704625517, 0.010506153704625517, 0.02202363630292186, 0.02202363630292186, -0.01896096586180629, -0.01896096586180629, -0.03132432020788547, -0.03132432020788547, -0.38604492322953676, -0.38604492322953676, 0.1462264974615181, 0.1462264974615181, 8035.14085071921]
-    elif enviroment == 'Linux-x86_64':
-        precalculated_tpos_15_264 = [617.9357218168522, 486.1381428609564, 257.9051759086099, 0.008637296682977602, 0.041740750179767666, 0.017748170111667804, 0.0774710888641746, 0.03993729011265557, 0.008861953191711569, 0.011046767393152468, 0.9707731058865956, 0.9977967016973495, 15.0, 0.0, 1104.0738646778086, -131.79757895589574, 300402.1242114891, 0.7867131251639167, 627.9357218168522, -607.9357218168522, 679.7292939985374, 0.001780120425415421, 627.9357218168522, 607.9357218168522, 679.7292939985374, 561.7597471062292, 689.7292939985374, 689.7292939985374, 0.010505388013615481, 0.010505388013615481, 0.022026453783620698, 0.022026453783620698, -0.018960965861806733, -0.018960965861806733, -0.03132432020788627, -0.03132432020788627, -0.38594005736045256, -0.38594005736045256, 0.14623811680311463, 0.14623811680311463, 8035.006232005751]
-    elif enviroment == 'Linux-aarch64':
-        precalculated_tpos_15_264 = [617.9357218168448, 486.13814286095663, 257.90517590861185, 0.008637296682977559, 0.04174075017756056, 0.017748170111667617, 0.0774710888641739, 0.03993729011265639, 0.008861953191711569, 0.011046767393152468, 0.9707731058865953, 0.9977967016973495, 15.0, 0.0, 1104.0738646778013, -131.79757895588813, 300402.1242114856, 0.7867131251639264, 627.9357218168448, -607.9357218168448, 679.7292939985293, 0.0017801204254154423, 627.9357218168448, 607.9357218168448, 679.7292939985293, 561.7597471062224, 689.7292939985293, 689.7292939985293, 0.010505388013615441, 0.010505388013615441, 0.022026453783620507, 0.022026453783620507, -0.018960965861806955, -0.018960965861806955, -0.0313243202078865, -0.0313243202078865, -0.385940057360448, -0.385940057360448, 0.14623811680311521, 0.14623811680311521, 8035.006232005768]
-    elif enviroment == 'Darwin-arm64':
-        precalculated_tpos_15_264 = [617.9365212878336, 486.1307570137023, 257.89830088440857, 0.008637497400253921, 0.04174075631357103, 0.017748044660834593, 0.07747048265598006, 0.03993634981174748, 0.008862151937972573, 0.011046919002466904, 0.9707722172500804, 0.9977966525557552, 15.0, 0.0, 1104.067278301536, -131.80576427413126, 300397.9488800683, 0.7867001548970814, 627.9365212878336, -607.9365212878336, 679.7301734166169, 0.0017801181223396608, 627.9365212878336, 607.9365212878336, 679.7301734166169, 561.7604738980305, 689.7301734166169, 689.7301734166169, 0.010505591638783906, 0.010505591638783906, 0.0220260230020498, 0.0220260230020498, -0.018960965861806733, -0.018960965861806733, -0.03132432020788627, -0.03132432020788627, -0.38595642646569384, -0.38595642646569384, 0.14622292378962792, 0.14622292378962792, 8035.020844678902]
-
     calculated_tpos_264 = results.tPosSlice(t_pos, scenCount)
 
-    for i, v in enumerate(zip(calculated_tpos_264, precalculated_tpos_15_264)):
-        diff = v[0] - v[1]
-        if diff != 0.0: print(results.genInfo[i][1], diff)
-    
     multipath = results[scenCount]
     multipath_arr = ndarray[scenCount]
 
     # t_pos data
-    multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) # (617.9524151122586, 486.1324942886278, 257.86113224359457, ...)
+    multipath_t_pos = results.tPosSlice(t_pos=t_pos, scenCount=scenCount) 
     multipath_t_pos_arr = ndarray[scenCount,:,t_pos]
 
     multipath_all_t_pos = results.tPosSlice(t_pos=t_pos) # all t_pos data
 
     # t_pos data of using date
     t_date = ref_date + 10
-    multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) # (398.5270922971255, 418.0131595105432, 424.67199724665664, 0.014226265796137581, ... )
+    multipath_using_date = results.dateSlice(date=t_date, scenCount=scenCount) 
     multipath_all_using_date = results.dateSlice(date=t_date) # all t_pos data
 
     # t_pos data of using time
     t_time = 1.32
-    multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) # (381.7433430556487, 434.9766465395624, 368.76856978958483, -0.0022718317886738877, ... )
+    multipath_using_time = results.timeSlice(time=t_time, scenCount=scenCount) 
     multipath_all_using_time = results.timeSlice(time=t_time) # all t_pos data
 
     # analyticPath and test calculation
@@ -260,8 +243,7 @@ def test():
         analyticPath = pv.analyticPath(timegrid2)
 
     input_arr = [0.01, 0.02, 0.03, 0.04, 0.05]
-    input_arr2d = [[0.01, 0.02, 0.03, 0.04, 0.05],
-                   [0.06, 0.07, 0.08, 0.09, 0.1]]
+    input_arr2d = [[0.01, 0.02, 0.03, 0.04, 0.05], [0.06, 0.07, 0.08, 0.09, 0.1]]
 
     for pv in all_calcs:
         if pv.sourceNum == 1:
@@ -323,42 +305,42 @@ def test():
     sb.corr[0][2] = 'kospi2_ni225_corr'
     sb.corr[2][0] = 'kospi2_ni225_corr'
 
-    sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pc='hw1f', maturityTenor='3m', compounding=mx.Compounded)
-    sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pc='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
-    sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m_2', ir_pc='hw1f', startTenor=0.5, maturityTenor=0.25, compounding=mx.Compounded)
-    sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pc='hw1f')
-    sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pc='hw1f', maturityTenor=mx.Period(3, mx.Months))
+    sb.addCalc(xen.SpotRate.__name__, 'hw1f_spot3m', ir_pv='hw1f', maturityTenor='3m', compounding=mx.Compounded)
+    sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m', ir_pv='hw1f', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+    sb.addCalc(xen.ForwardRate.__name__, 'hw1f_forward6m3m_2', ir_pv='hw1f', startTenor=0.5, maturityTenor=0.25, compounding=mx.Compounded)
+    sb.addCalc(xen.DiscountFactor.__name__, 'hw1f_discountFactor', ir_pv='hw1f')
+    sb.addCalc(xen.DiscountBond.__name__, 'hw1f_discountBond3m', ir_pv='hw1f', maturityTenor=mx.Period(3, mx.Months))
 
     sb.addCalc(xen.ConstantValue.__name__, 'constantValue', v=15)
     sb.addCalc(xen.ConstantArray.__name__, 'constantArr', arr=[15,14,13])
 
-    sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pc1='gbmconst', pc2='gbm')
-    sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pc1='gbmconst', pc2='gbm')
-    sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pc1='gbmconst', pc2='gbm')
-    sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2='gbm')
+    sb.addCalc(xen.AdditionOper.__name__, 'addOper1', pv1='gbmconst', pv2='gbm')
+    sb.addCalc(xen.SubtractionOper.__name__, 'subtOper1', pv1='gbmconst', pv2='gbm')
+    sb.addCalc(xen.MultiplicationOper.__name__, 'multiple_gbmconst_gbm', pv1='gbmconst', pv2='gbm')
+    sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pv1='gbmconst', pv2='gbm')
 
-    sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1='gbmconst', pc2=10)
-    sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1='gbmconst', pc2=10)
-    sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1='gbmconst', pc2=1.1)
-    sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1='gbmconst', pc2=1.1)
+    sb.addCalc(xen.AdditionConstOper.__name__, 'addOper2', pv1='gbmconst', v=10)
+    sb.addCalc(xen.SubtractionConstOper.__name__, 'subtOper2', pv1='gbmconst', v=10)
+    sb.addCalc(xen.MultiplicationConstOper.__name__, 'mulOper2', pv1='gbmconst', v=1.1)
+    sb.addCalc(xen.DivisionConstOper.__name__, 'divOper1', pv1='gbmconst', v=1.1)
 
-    sb.addCalc(xen.AdditionOper.__name__, 'addOper2', pc1=10, pc2='gbmconst')
-    sb.addCalc(xen.SubtractionOper.__name__, 'subtOper2', pc1=10, pc2='gbmconst')
-    sb.addCalc(xen.MultiplicationOper.__name__, 'mulOper2', pc1=1.1, pc2='gbmconst')
-    sb.addCalc(xen.DivisionOper.__name__, 'divOper1', pc1=1.1, pc2='gbmconst')
+    sb.addCalc(xen.AdditionConstReverseOper.__name__, 'addOper2', v=10, pv2='gbmconst')
+    sb.addCalc(xen.SubtractionConstReverseOper.__name__, 'subtOper2', v=10, pv2='gbmconst')
+    sb.addCalc(xen.MultiplicationConstReverseOper.__name__, 'mulOper2', v=1.1, pv2='gbmconst')
+    sb.addCalc(xen.DivisionConstReverseOper.__name__, 'divOper1', v=1.1, pv2='gbmconst')
 
-    sb.addCalc(xen.LinearOper.__name__, 'linearOper1', pc='gbm', multiple=1.1, spread=10)
-    sb.addCalc(xen.Shift.__name__, 'shiftRight1', pc='hw1f', shift=5, fill_value=0.0)
-    sb.addCalc(xen.Shift.__name__, 'shiftLeft1', pc='cir1f', shift=-5, fill_value=0.0)
+    sb.addCalc(xen.LinearOper.__name__, 'linearOper1', pv='gbm', multiple=1.1, spread=10)
+    sb.addCalc(xen.Shift.__name__, 'shiftRight1', pv='hw1f', shift=5, fill_value=0.0)
+    sb.addCalc(xen.Shift.__name__, 'shiftLeft1', pv='cir1f', shift=-5, fill_value=0.0)
 
-    sb.addCalc(xen.Returns.__name__, 'returns1', pc='gbm', return_type='return')
-    sb.addCalc(xen.Returns.__name__, 'logreturns1', pc='gbmconst', return_type='logreturn')
-    sb.addCalc(xen.Returns.__name__, 'cumreturns1', pc='heston', return_type='cumreturn')
-    sb.addCalc(xen.Returns.__name__, 'cumlogreturns1', pc='gbm', return_type='cumlogreturn')
+    sb.addCalc(xen.Returns.__name__, 'returns1', pv='gbm', return_type='return')
+    sb.addCalc(xen.Returns.__name__, 'logreturns1', pv='gbmconst', return_type='logreturn')
+    sb.addCalc(xen.Returns.__name__, 'cumreturns1', pv='heston', return_type='cumreturn')
+    sb.addCalc(xen.Returns.__name__, 'cumlogreturns1', pv='gbm', return_type='cumlogreturn')
 
-    sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pc='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
+    sb.addCalc(xen.FixedRateBond.__name__, 'fixedRateBond', ir_pv='vasicek1f', notional=10000, fixedRate=0.0, couponTenor=mx.Period(3, mx.Months), maturityTenor=mx.Period(3, mx.Years), discountCurve=rfCurve)
 
-    sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pc1='gbmconst', pc2='gbm')
+    sb.addCalc(xen.AdditionOper.__name__, 'addOper_for_remove', pv1='gbmconst', pv2='gbm')
     sb.removeCalc('addOper_for_remove')
 
     # scenarioBuilder - save, load, list
@@ -373,7 +355,7 @@ def test():
 
     xm.save_xnb('sb2', sb=sb)
 
-    sb.setTimeGrid(mx.TimeGrid.__name__, refDate=ref_date, maxYear=10, frequency_type='endofmonth')
+    sb.setTimeGrid(mx.TimeDateGrid_Custom.__name__, refDate=ref_date, maxYear=10, frequency_type='endofmonth')
     sb.setRsg(xen.Rsg.__name__, sampleNum=1000)
 
     xm.save_xnb('sb3', sb=sb)
@@ -507,40 +489,8 @@ def test():
         xm.save_xen(name, scen)
         res = scen.generate_clone(filename=name)
 
-    # instruments pricing
-
-    # this is built-in instruments
-    # option1 = mx_i.EuropeanOption(option_type='c', strike=400, maturityDate=ref_date + 365)
-
-    # this is inherit instrument for user output
-    class EuropeanOptionForUserOutput(mx_i.EuropeanOption):
-        def userfunc_test(self, scen_data_d, calc_kwargs):
-            v = calc_kwargs['calc_arg1']
-            return v + 99
-
-    option = EuropeanOptionForUserOutput(option_type='c', strike=400, maturityDate=ref_date + 365)
-
-    # outputs
-    delta = mx_io.Delta(up='s_up', down='s_down')
-    gamma = mx_io.Gamma(up='s_up', center='basescen', down='s_down')
-
-    npv = mx_io.Npv(scen='basescen', currency='krw')
-    discount_cf = mx_io.CashFlow(scen='basescen', currency='krw', discount=None)
-    test_output = mx_io.UserFunc(scen='basescen', userfunc=option.userfunc_test, abc=10)
-
-    # calculate from scenario
-    results1 = option.calculateScen(outputs=[npv, discount_cf, delta, gamma, test_output], shm=shm, reduce='aver',
-                                    path_kwargs={'s1': 'gbmconst', 'discount': 'hw1f_discountFactor'},
-                                    calc_kwargs={'calc_arg1': 10})
-
-    # calculate from model
-    basescen = shm.getScenario('basescen')
-    gbmconst_basescen = basescen.getModel('gbmconst')
-    arg_d = { 'x0': gbmconst_basescen._x0, 'rf': gbmconst_basescen._rf, 'div': gbmconst_basescen._div, 'vol': gbmconst_basescen._vol }
-    assert option.setPricingParams_GBMConst(**arg_d).NPV() == option.setPricingParams_Model(gbmconst_basescen).NPV()
-
     # calendar holiday
-    mydates = [mx.Date(2022, 10, 11), mx.Date(2022, 10, 12), mx.Date(2022, 10, 13), mx.Date(2022, 11, 11)]
+    mydates = [mx.Date(11, 10, 2022), mx.Date(12, 10, 2022), mx.Date(13, 10, 2022), mx.Date(11, 11, 2022)]
 
     kr_cal = mx.SouthKorea()
     user_cal = mx.UserCalendar('testcal')

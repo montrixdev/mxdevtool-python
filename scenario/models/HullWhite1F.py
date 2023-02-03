@@ -51,7 +51,7 @@ def test():
     m = model()
 
     # timegrid
-    timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
+    timeGrid = mx.TimeDateGrid_Equal(ref_date, 3, 365)
     
     # random sequence
     rsg = xen.Rsg(sampleNum=5000)

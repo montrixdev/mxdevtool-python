@@ -24,7 +24,7 @@ corrMatrix[2][0] = gbmconst1_vasicek_corr
 corrMatrix[0][2] = gbmconst1_vasicek_corr
 
 # 시간 간격 및 최대 생성 구간 설정
-timeGrid = mx.TimeEqualGrid(ref_date, 3, 365)
+timeGrid = mx.TimeDateGrid_Equal(ref_date, 3, 365)
 
 # random
 filename = './multipleassets.npz'
