@@ -3,7 +3,7 @@ MxDevTool(Beta) : Financial Library
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10|3.11-blue)
-![image](https://img.shields.io/badge/version-1.0.29.0-green.svg)
+![image](https://img.shields.io/badge/version-1.0.29.17-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
@@ -797,7 +797,7 @@ For source code, check this repository.
 
 # Release History
 
-## 1.0.29.0 (2023-01-28)
+## 1.0.29.17 (2023-01-28)
 - QuantLib dependency is redegined
 - Version Syntex is changed
 - Instruments pricings are removed for reconstruction
