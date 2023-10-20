@@ -147,3 +147,5 @@ xenrepo/
 
 clear_output.bat
 *.html
+
+*.json
