@@ -2,8 +2,8 @@ MxDevTool(Beta) : Financial Library
 ==========================
 
 ![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
-![image](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10|3.11-blue)
-![image](https://img.shields.io/badge/version-1.0.29.17-green.svg)
+![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
+![image](https://img.shields.io/badge/version-1.0.32.3-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
@@ -138,6 +138,7 @@ import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
+import mxdevtool.marketconvension as mx_m
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
 import mxdevtool.utils as utils
@@ -251,7 +252,13 @@ ShortRate Model :
 
 ```python
 hw1f_spot3m = hw1f.spot('hw1f_spot3m', maturity=mx.Period(3, mx.Months), compounding=mx.Compounded)
-hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startPeriod=mx.Period(6, mx.Months), maturity=mx.Period(3, mx.Months), compounding=mx.Compounded)
+hw1f_overnight = hw1f.overnight('hw1f_sofr', mx_m.IndexFactory().get_overnightIndex('sofr'))
+hw1f_libor = hw1f.ibor('libor3m', mx_m.IndexFactory().get_iborIndex('libor', mx.Period(3, mx.Months)))
+hw1f_swap = hw1f.swaprate('cms5y', mx_m.IndexFactory().get_swapIndex('krwirs', mx.Period(5, mx.Years), mx.Period(3, mx.Months)))
+hw1f_bond = hw1f.bondrate('cmt10y', mx_m.IndexFactory().get_bondIndex('ktb', mx.Period(5, mx.Years), mx.Period(6, mx.Months)))
+
+# hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startTenor=0.5, maturityTenor=3.0, compounding=mx.Compounded)
 hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
 hw1f_discountBond3m = hw1f.discountBond('hw1f_discountBond3m', maturity=mx.Period(3, mx.Months))
 
@@ -800,6 +807,8 @@ For source code, check this repository.
 ## 1.0.32.2 (2023-10-28)
 - update base Quatlib 1.32
 - add calcs ( overnight, ibor, swap, bond )
+- terminate support python 3.6 3.7
+- add coin address for donation
 
 ## 1.0.29.17 (2023-01-28)
 - QuantLib dependency is redegined
@@ -940,7 +949,9 @@ You can download Npzee Viewer in [WindowStore](https://www.microsoft.com/store/a
 <br>
 
 # Donation
-Etherium - aaaaaaaaaaaaaaaa
+
+Bitcoin  - 3CK4Two4zCndGi5bSvNPEFMEjnzSExAyDs
+Etherium - 0x976a09a3cbb38def4eda10291080c28c41926318
 
 <br>
 
