@@ -193,7 +193,7 @@ def build_linear_swaption_cube(
         vega_weighted_smile_fit=False):
     vol_spreads = [[ql.QuoteHandle(ql.SimpleQuote(v)) for v in row]
                    for row in vol_spreads]
-    cube = ql.SwaptionVolCube2(
+    cube = ql.InterpolatedSwaptionVolatilityCube(
         ql.SwaptionVolatilityStructureHandle(volatility_matrix),
         spread_opt_tenors,
         spread_swap_tenors,
@@ -232,7 +232,7 @@ def build_sabr_swaption_cube(
                  for row in vol_spreads]
     guess = sabr_parameters_guess(
         len(spread_opt_tenors), len(spread_swap_tenors))
-    cube = ql.SwaptionVolCube1(
+    cube = ql.SabrSwaptionVolatilityCube(
         ql.SwaptionVolatilityStructureHandle(volatility_matrix),
         spread_opt_tenors,
         spread_swap_tenors,
@@ -296,7 +296,7 @@ class SwaptionVolatilityCubeTest(unittest.TestCase):
                               swap_tenor=swap_tenor,
                               strike=actual_atm_strike,
                               replicated_strike=expected_atm_strike)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             first=actual_atm_strike,
             second=expected_atm_strike,
             delta=TOLERANCE,
@@ -331,7 +331,7 @@ class SwaptionVolatilityCubeTest(unittest.TestCase):
                               vol=actual_vol,
                               expected_vol=expected_vol,
                               eps=epsilon)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             first=actual_vol,
             second=expected_vol,
             delta=epsilon,
@@ -367,7 +367,7 @@ class SwaptionVolatilityCubeTest(unittest.TestCase):
                               vol=actual_vol,
                               expected_vol=expected_vol,
                               eps=epsilon)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             first=actual_vol,
             second=expected_vol,
             delta=epsilon,
@@ -527,6 +527,13 @@ class SviSmileSectionTest(unittest.TestCase):
     def setUp(self):
         ql.Settings.instance().evaluationDate = ql.Date(3, ql.May, 2022)
 
+    def tearDown(self):
+        # The objects created in this test are not immediately garbage-collected
+        # by PyPy, and can throw errors when the global evaluation date changes.
+        # Thus, we need to force a collection when we're done with them.
+        import gc
+        gc.collect()
+
     def test_svi_smile_section(self):
         """Testing the SviSmileSection against already fitted parameters"""
         expiry_date = ql.Date(16, ql.December, 2022)
@@ -623,9 +630,5 @@ class AndreasenHugeVolatilityTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    print("testing QuantLib " + ql.__version__)
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(SwaptionVolatilityCubeTest, "test"))
-    suite.addTest(unittest.makeSuite(SviSmileSectionTest, "test"))
-    suite.addTest(unittest.makeSuite(AndreasenHugeVolatilityTest, "test"))
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    print("testing QuantLib", ql.__version__)
+    unittest.main(verbosity=2)

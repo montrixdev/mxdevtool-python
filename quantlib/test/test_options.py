@@ -54,8 +54,7 @@ class OptionsTest(unittest.TestCase):
         option.setPricingEngine(
             ql.FdHestonHullWhiteVanillaEngine(
                 ql.HestonModel(heston_process), hull_white_process, -0.5,
-                10, 200, 25, 10,
-                controlVariate=True
+                10, 200, 25, 10, 0, True
             )
         )
 
@@ -106,7 +105,5 @@ class OptionsTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print('testing QuantLib ' + ql.__version__)
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(OptionsTest,'test'))
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    print("testing QuantLib", ql.__version__)
+    unittest.main(verbosity=2)
