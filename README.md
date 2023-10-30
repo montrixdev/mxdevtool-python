@@ -1,12 +1,12 @@
 MxDevTool(Beta) : Financial Library
 ==========================
 
-![image](https://img.shields.io/badge/platform-windows_64|_linux_64-red)
+![image](https://img.shields.io/badge/platform-windows_64_|_linux_64-red)
 ![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
 ![image](https://img.shields.io/badge/version-1.0.32.3-green.svg)
 
 ![image](https://img.shields.io/badge/platform-macOS_64-red)
-![image](https://img.shields.io/badge/python-3.8|3.9|3.10|3.11-blue)
+![image](https://img.shields.io/badge/python-3.10|3.11-blue)
 
 MxDevTool is a Integrated Developing Tools for financial analysis.
 Now is Beta Release version. The Project is built on top of QuantLib-Python.
@@ -807,7 +807,8 @@ For source code, check this repository.
 ## 1.0.32.2 (2023-10-28)
 - update base Quatlib 1.32
 - add calcs ( overnight, ibor, swap, bond )
-- terminate support python 3.6 3.7
+- terminate support python 3.6 3.7 on linux
+- terminate support python 3.8 3.9 on macos
 - add coin address for donation
 
 ## 1.0.29.17 (2023-01-28)
@@ -950,8 +951,8 @@ You can download Npzee Viewer in [WindowStore](https://www.microsoft.com/store/a
 
 # Donation
 
-Bitcoin  - 3CK4Two4zCndGi5bSvNPEFMEjnzSExAyDs
-Etherium - 0x976a09a3cbb38def4eda10291080c28c41926318
+* Bitcoin  - 3CK4Two4zCndGi5bSvNPEFMEjnzSExAyDs
+* Etherium - 0x976a09a3cbb38def4eda10291080c28c41926318
 
 <br>
 
