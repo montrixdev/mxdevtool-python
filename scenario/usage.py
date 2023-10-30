@@ -5,6 +5,7 @@ import mxdevtool.shock as mx_s
 import mxdevtool.xenarix as xen
 import mxdevtool.termstructures as ts
 import mxdevtool.quotes as mx_q
+import mxdevtool.marketconvension as mx_m
 import mxdevtool.data.providers as mx_dp
 import mxdevtool.data.repositories as mx_dr
 import mxdevtool.utils as utils
@@ -79,6 +80,11 @@ def test():
 
     # calcs in models
     hw1f_spot3m = hw1f.spot('hw1f_spot3m', maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
+    hw1f_overnight = hw1f.overnight('hw1f_sofr', mx_m.IndexFactory().get_overnightIndex('sofr'))
+    hw1f_libor = hw1f.ibor('libor3m', mx_m.IndexFactory().get_iborIndex('libor', mx.Period(3, mx.Months)))
+    hw1f_swap = hw1f.swaprate('cms5y', mx_m.IndexFactory().get_swapIndex('krwirs', mx.Period(5, mx.Years), mx.Period(3, mx.Months)))
+    hw1f_bond = hw1f.bondrate('cmt10y', mx_m.IndexFactory().get_bondIndex('ktb', mx.Period(5, mx.Years), mx.Period(6, mx.Months)))
+
     # hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startTenor=mx.Period(6, mx.Months), maturityTenor=mx.Period(3, mx.Months), compounding=mx.Compounded)
     hw1f_forward6m3m = hw1f.forward('hw1f_forward6m3m', startTenor=0.5, maturityTenor=3.0, compounding=mx.Compounded)
     hw1f_discountFactor = hw1f.discountFactor('hw1f_discountFactor')
@@ -185,7 +191,7 @@ def test():
 
     # multiple model with calc
     filename3='./multiple_model_with_calc.npz'
-    calcs = [oper1, oper3, linearOper1, linearOper2, shiftLeft2, returns1, fixedRateBond, hw1f_spot3m]
+    calcs = [oper1, oper3, linearOper1, linearOper2, shiftLeft2, returns1, fixedRateBond, hw1f_spot3m, hw1f_overnight, hw1f_libor, hw1f_swap, hw1f_bond]
     results3 = xen.generate(models=models, calcs=calcs, corr=corrMatrix, timegrid=timegrid4, rsg=pseudo_rsg, filename=filename3, isMomentMatching=False)
 
     all_models = [ gbmconst, gbm, heston, hw1f, bk1f, cir1f, vasicek1f, g2ext ]
